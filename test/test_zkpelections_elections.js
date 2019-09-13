@@ -8,17 +8,28 @@ contract("Test ZKP elections election management", function(accounts) {
 
     const ownerAccount = accounts[0];
     const userAccount = accounts[1];
+
+    // Added for all tests
+    const challenge1 = "Best financial quote?";
+    const prizeMoneyWei1 = 16000;
+
+    // Added for all tests
     const candidate1Account = accounts[2];
+    const candidateName1 = "Candidate 1";
+    const  submission1 = "Submission 1";
+
+    // Added for all tests
     const candidate2Account = accounts[3];
-    var zkpElections;
+    const candidateName2 = "Candidate 2";
+    const submission2 = "Submission 2";
 
-    let challenge1 = "Best financial quote?"
-    let candidateName1 = "Candidate 1";
-    let submission1 = "Submission 1";
-    let prizeMoneyWei1 = 16000;
-    let candidateName2 = "Candidate 2";
+    // Added in 1 test
+    const candidate3Account = accounts[4];
+    const candidateName3 = "Candidate 3";
+    const submission3 = "Submission 3";
 
-    let submission2 = "Submission 2";
+    // Added for all tests
+    var zkpElections;    
     
     beforeEach("add election and 2 candidates", async function () {
 	// Add election
@@ -66,15 +77,14 @@ contract("Test ZKP elections election management", function(accounts) {
     });
     
 
-    it("should not add same candidate", async function () {
+    it("should not add other candidate with same submission", async function () {
 
 	await truffleAssert.reverts(
 	    zkpElections.addCandidate(
 		1,
-		candidateName1,
+		candidateName3,
 		submission1,
-		{"from": candidate1Account}));
-
+		{"from": candidate3Account}));
     });
 
     it("should not add candidate on wrong election", async function () {

@@ -82,7 +82,7 @@ contract ZKPElections {
 
     // Check candidate not already there
     for (uint idx = 1; idx <= election.candidateCount; idx ++) {
-      require(election.candidates[idx].addr != msg.sender);
+      require(!stringsAreEqual(election.candidates[idx].submission, _submission));
     }
 
     // Add candidate
@@ -103,6 +103,20 @@ contract ZKPElections {
     require(_candidateIndex <= elections[_electionIndex].candidateCount);
     Candidate memory candidate = elections[_electionIndex].candidates[_candidateIndex];
     return (candidate.name, candidate.submission);
+  }
+
+  function stringsAreEqual(string storage ss, string memory sm) internal view returns (bool) {
+    bytes storage bs = bytes(ss);
+    bytes memory bm = bytes(sm);
+    if (bs.length != bm.length) {
+      return false;
+    }
+    for (uint i=0; i<bs.length; i++){
+      if (bs[i] != bm[i]) {
+	return false;
+      }
+    }
+    return true;
   }
   
 }
