@@ -12,7 +12,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bignumber.js": "^9.0.0",
     "npm": "^6.11.3",
     "truffle-hdwallet-provider": "^1.0.17"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "truffle-assertions": "^0.9.1"
   }
 }
