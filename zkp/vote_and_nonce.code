@@ -1,0 +1,15 @@
+import "hashes/sha256/512bitPacked.code" as sha256packed
+
+def main(private field candidateId, private field[4] nonce, field[3] candidateIds, field[2] shaIdNonce) -> (field):
+
+    bool inList = candidateId == candidateIds[0] || candidateId == candidateIds[1] || candidateId == candidateIds[2]
+    inList == true
+    
+    field gt0 = if candidateId > 0 then 1 else 0 fi
+    gt0 == 1
+
+    field[2] h = sha256packed(nonce)
+    h[0] == shaIdNonce[0]
+    h[1] == shaIdNonce[1]
+
+    return 1
