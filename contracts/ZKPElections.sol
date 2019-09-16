@@ -1,122 +1,106 @@
 pragma solidity ^0.5.11;
 
-
 contract ZKPElections {
 
-  address owner;
-
-  // Data struture
-  struct Vote {
-    address addr;
-  }
-
+  enum VoterStatus { NoStatus, AwaitingVote, CastVote }
+ 
   struct Candidate {
-    address addr;
-    string name;
-    string submission;
-
-    mapping (uint => Vote) votes;
+    uint name;
     uint voteCount;
   }
-
+ 
   struct Election {
-    address ownerAddr;
-    string ownerName;
-    string challenge;
-    uint prizeMoneyWei;
-
+    address owner;
+    bool isClosed;
+        
     mapping (uint => Candidate) candidates;
     uint candidateCount;
-  }
 
-  mapping (uint => Election) elections;
+    mapping (address => VoterStatus) voterToStatus;
+    uint voterCount;
+  }
+ 
+  mapping (uint => Election) public elections;
   uint public electionCount;
 
-  event ElectionAdded(uint _electionCount, uint _prizeMoneyWei);
-  event CandidateAdded(uint _candidateCount, string _candidateName);
-  event VoteCast(string _candidateName, address _voterAddr);
-
-  // Admin and required functions
-  constructor() public {
-    owner = msg.sender;
-  }
-
-  function () payable external {}
-
-  function withdraw(uint _valueWei) external {
-    require(msg.sender == owner);
-    msg.sender.transfer(_valueWei);
-  }
-
-  function addElection(string calldata _ownerName,
-		       string calldata _challenge) payable external {
-
-    require(msg.value > 1000);
+  event ElectionAdded(uint _electionKey);
+  event ElectionClosed(uint _electionKey);
+  event VoteCast(uint _electionKey, uint _candidateKey);
+  
+  function addElection(uint [] calldata _candidates,
+		       address [] calldata _voterAddresses) external {
+        
+    require(_candidates.length >= 1);
+    require(_voterAddresses.length >= 1);
+        
     electionCount += 1;
-    elections[electionCount].ownerAddr = msg.sender;
-    elections[electionCount].ownerName = _ownerName;
-    elections[electionCount].challenge = _challenge;
-    elections[electionCount].prizeMoneyWei = msg.value;
-    emit ElectionAdded(electionCount, msg.value);
-  }
-
-  function getElection(uint _electionIndex)
-    public view returns (string memory, uint, uint) {
-    
-    require(_electionIndex > 0);
-    require(_electionIndex <= electionCount);
-
-    return (elections[_electionIndex].challenge,
-	    elections[_electionIndex].prizeMoneyWei,
-	    elections[_electionIndex].candidateCount);
-  }
-  
-  function addCandidate(uint _electionIndex,
-			string calldata _name,
-			string calldata _submission) payable external {
-
-    // Check electionIndex validity
-    require(_electionIndex > 0);
-    require(_electionIndex <= electionCount);
-    Election storage election = elections[_electionIndex];
-
-    // Check candidate not already there
-    for (uint idx = 1; idx <= election.candidateCount; idx ++) {
-      require(!stringsAreEqual(election.candidates[idx].submission, _submission));
-    }
-
-    // Add candidate
-    election.candidateCount += 1;
-    election.candidates[election.candidateCount].addr = msg.sender;
-    election.candidates[election.candidateCount].name = _name;
-    election.candidates[election.candidateCount].submission = _submission;
-    
-    emit CandidateAdded(election.candidateCount, _name);
-  }
-  
-  function getCandidate(uint _electionIndex, uint _candidateIndex)
-    public view returns (string memory, string memory) {
-
-    require(_electionIndex > 0);
-    require(_electionIndex <= electionCount);
-    require(_candidateIndex > 0);
-    require(_candidateIndex <= elections[_electionIndex].candidateCount);
-    Candidate memory candidate = elections[_electionIndex].candidates[_candidateIndex];
-    return (candidate.name, candidate.submission);
-  }
-
-  function stringsAreEqual(string storage ss, string memory sm) internal view returns (bool) {
-    bytes storage bs = bytes(ss);
-    bytes memory bm = bytes(sm);
-    if (bs.length != bm.length) {
-      return false;
-    }
-    for (uint i=0; i<bs.length; i++){
-      if (bs[i] != bm[i]) {
-	return false;
+    Election storage election = elections[electionCount];
+        
+    election.owner = msg.sender;
+    election.isClosed = false;
+    election.candidateCount = _candidates.length;
+    election.voterCount = _voterAddresses.length;
+        
+    for (uint i = 1; i <= _candidates.length; i ++ ) {
+      for (uint j = 1; j <= _candidates.length; j ++) {
+	election.candidates[j].name = _candidates[j-1];
       }
+      for (uint j = 1; j <= _voterAddresses.length; j ++) {
+	election.voterToStatus[_voterAddresses[j-1]] = VoterStatus.AwaitingVote;
+      }           
     }
-    return true;
+
+    emit ElectionAdded(electionCount);
+  }
+    
+  function getElection(uint _electionKey)
+    external view returns (uint [] memory, uint [] memory, uint, bool) {
+        
+    require (_electionKey <= electionCount);
+        
+    Election storage election = elections[_electionKey];
+    uint cnt = election.candidateCount;
+    uint  [] memory cands = new uint[](cnt);
+    uint  [] memory vCnts = new uint[](cnt);
+        
+    for (uint i = 1; i <= cnt; i ++ ) {
+      cands[i-1] = election.candidates[i].name;
+      vCnts[i-1] = election.candidates[i].voteCount;
+    }
+        
+    return (cands, vCnts, election.voterCount, election.isClosed);
+  }
+
+  function getVoterStatus(uint _electionKey, uint _voterKey)
+    external view returns (VoterStatus) {
+
+    require(_electionKey <= electionCount);
+    require(_voterKey <= elections[_electionKey].voterCount);
+    return elections[_electionKey].voterToStatus[msg.sender];
   }
   
+  
+  function castVote(uint _electionKey, uint _candidateKey) external {
+    require(_electionKey <= electionCount);
+        
+    Election storage election = elections[_electionKey];
+    require(!election.isClosed);
+    require(election.voterToStatus[msg.sender] == VoterStatus.AwaitingVote);
+    require(_candidateKey <= election.candidateCount);
+        
+    election.candidates[_candidateKey].voteCount += 1;
+    election.voterToStatus[msg.sender] = VoterStatus.CastVote;
+
+    emit VoteCast(_electionKey, _candidateKey);
+  }
+    
+  function closeElection(uint _electionKey) external {
+    require (_electionKey <= electionCount);
+    Election storage election = elections[_electionKey];
+    require (election.owner == msg.sender);
+    require(!election.isClosed);
+    election.isClosed = true;
+        
+    emit ElectionClosed(_electionKey);
+  }
 }
