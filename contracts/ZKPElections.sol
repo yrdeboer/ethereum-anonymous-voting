@@ -60,8 +60,8 @@ contract ZKPElections {
         
     Election storage election = elections[_electionKey];
     uint cnt = election.candidateCount;
-    uint  [] memory cands = new uint[](cnt);
-    uint  [] memory vCnts = new uint[](cnt);
+    uint [] memory cands = new uint[](cnt);
+    uint [] memory vCnts = new uint[](cnt);
         
     for (uint i = 1; i <= cnt; i ++ ) {
       cands[i-1] = election.candidates[i].name;
@@ -70,6 +70,36 @@ contract ZKPElections {
         
     return (cands, vCnts, election.voterCount, election.isClosed);
   }
+
+  function getElectionKeysForOwner()
+    external view returns (uint [] memory) {
+
+    uint keyCount = 0;
+    for (uint i = 1; i <= electionCount; i ++) {
+      if (elections[i].owner == msg.sender) {
+	keyCount += 1;
+      }
+    }
+
+    uint [] memory keys;
+    if (keyCount == 0) {
+      keys = new uint[](1);
+      keys[0] = 0;
+
+    } else {
+    
+      keys = new uint[](keyCount);
+      keyCount = 0;
+      for (uint i = 1; i <= electionCount; i ++) {
+	if (elections[i].owner == msg.sender) {
+	  keys[keyCount] = i;
+	  keyCount += 1;
+	}
+      }
+    }
+    return keys;
+  }
+  
 
   function getVoterStatus(uint _electionKey, uint _voterKey)
     external view returns (VoterStatus) {

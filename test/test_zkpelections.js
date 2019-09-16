@@ -102,6 +102,24 @@ contract("Test ZKP elections election management", function(accounts) {
 	assert.equal(result[3], false);
     });
 
+    it("should get election keys for owner", async function () {
+
+	var result = await zkpElections.getElectionKeysForOwner.call(
+	    {"from": ownerAccount});
+
+	assert.equal(result.length, 1);
+	assert.equal(result[0], 1);
+    });
+
+    it("should not zero election keys for non owner", async function () {
+
+	var result = await zkpElections.getElectionKeysForOwner.call(
+	    {"from": someUserAccount});
+
+	assert.equal(result.length, 1);
+	assert.equal(result[0], 0);
+    });
+
     it("should accept another valid vote", async function () {
 	
 	var electionKey = new bigInt('1');
