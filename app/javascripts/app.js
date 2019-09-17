@@ -21,6 +21,7 @@ import {
 
 var zkpElections = null;
 
+var allAccounts;
 var userAccount;
 
 window.App = {
@@ -44,6 +45,7 @@ window.App = {
 		return;
 	    }
 
+	    allAccounts = accounts;
 	    userAccount = accounts[0];
 
 	    console.log("set user account to:");
@@ -73,20 +75,37 @@ window.App = {
 	let electionCount = new bigInt(await zkpElections.electionCount.call());
 	console.log("electionCount=" + electionCount);
 
-	const element = document.getElementById("userElectionCount");
-	var keys = [];
-	if (keys.length == 0) {
-	    element.innerHTML = "<h3>You have no elections</h3>";
-	} else {
-	    element.innerHTML = "<h3>You have " + keys.length + " elections</h3>";
+	let userElectionKeys = [];
+	if (electionCount > 0) {
+	    userElectionKeys = App.getUserElectionKeys();
 	}
-
-	let receipt = await zkpElections.getElectionKeysForOwner.call();
-	console.log(receipt);
-
-	console.log(parseInt(receipt));
+	
     },
 
+    getUserElectionKeys: async function () {
+	
+	let keys = await zkpElections.getElectionKeysForOwner.call({"from": userAccount});
+	console.log(keys);
+	
+	let userElectionKeys = [];
+	for (var i = 0; i < keys.length; i ++) {
+	    if (keys[i].toNumber() == 1) {
+		userElectionKeys.push(i+1);
+	    }
+	}
+
+	console.log(userElectionKeys);
+	
+	const element = document.getElementById("userElectionCount");
+	if (userElectionKeys.length == 0) {
+	    element.innerHTML = "<h3>You have no elections</h3>";
+	} else {
+	    element.innerHTML = "<h3>You have " + userElectionKeys.length + " elections</h3>";
+	}
+
+	return userElectionKeys;
+    },
+    
     initElection: async function () {
 	
 	function getParam(paramName, urlPart) {
@@ -193,405 +212,17 @@ window.App = {
     // 	status.insertAdjacentHTML("beforeEnd", "<br>" + message + "</br>");
     // },
 
-    // printImportantInformation: function() {
-
-    // 	web3.eth.getAccounts(function(err, accounts) {
-    // 	    var div = document.createElement("div");
-    // 	    div.setAttribute("class", "row");
-
-    // 	    web3.eth.getBalance(userAccount, function(err, balance) {
-
-    // 		var balanceWei = new bigInt(balance);
-    // 		var balanceEth = parseFloat(balanceWei / 1e18);
-    
-    // 		var divRow1 = document.createElement("div");
-    // 		divRow1.setAttribute("class", "row");
-    // 		divRow1.appendChild(document.createTextNode("Active account: " + userAccount));
-    // 		div.appendChild(divRow1);
-    
-    // 		var divRow2 = document.createElement("div");
-    // 		divRow2.setAttribute("class", "row");
-    // 		divRow2.appendChild(document.createTextNode("Balance: " + balanceEth + " (ETH)"));
-    // 		div.appendChild(divRow2);
-
-    // 		div.setAttribute("class", "alert alert-info");
-    
-    // 		const iInfo = document.getElementById("importantInformation");
-    // 		iInfo.appendChild(div);
-
-    // 	    });
-    // 	});
-    
-    // },
-
-    // initExchange: function() {
-    // },
-    
-    // watchExchangeEvents: function() {
-
-    // 	// var exchangeInstance;
-    // 	// return ExchangeContract.deployed().then(function(instance) {
-
-    // 	//     exchangeInstance = instance;
-    // 	//     exchangeInstance.allEvents({}, {fromBlock: 0, toBlock: "latest"}).watch(
-    // 	// 	function(err, result) {
-
-    // 	// 	    console.log(result);
-    
-    // 	// 	    var alertBox = document.createElement("div");
-    // 	// 	    alertBox.setAttribute("class", "alert alert-info alert-dismissable");
-    // 	// 	    var closeBtn = document.createElement("button");
-    // 	// 	    closeBtn.setAttribute("type", "button");
-    // 	// 	    closeBtn.setAttribute("class", "close");
-    // 	// 	    closeBtn.setAttribute("data-dismiss", "alert");
-    // 	// 	    closeBtn.innerHTML = "<span>&times</span>";
-    // 	// 	    alertBox.appendChild(closeBtn);
-
-    // 	// 	    var eventTitle = document.createElement("div");
-    // 	// 	    eventTitle.innerHTML = "<strong>New event: " + result.event + "</strong>";
-    // 	// 	    alertBox.appendChild(eventTitle);
-
-    // 	// 	    var argsBox = document.createElement("textarea");
-    // 	// 	    argsBox.setAttribute("class", "form-control");
-    // 	// 	    argsBox.innerHTML = JSON.stringify(result.args);
-    // 	// 	    alertBox.appendChild(argsBox);
-    // 	// 	    document.getElementById("exchangeEvents").appendChild(alertBox);
-
-    // 	// 	}
-    // 	//     );
-    // 	// }).catch(function(e) {
-
-    // 	//     console.log(e);
-    // 	//     alert("Error watching for exchange events");
-    // 	// });
-
-    // },
-    
-    // addTokenToExchange: function() {
-
-    // 	console.log("addTokenToExchange");
-
-    // 	var tokenName = document.getElementById("inputAddTokenName").value;
-    // 	var tokenAddress = document.getElementById("inputAddTokenAddress").value;
-
-    // 	console.log("addToken " + tokenName + " at " + tokenAddress);
-    
-    // 	var exchangeInstance;
-    // 	return ExchangeContract.deployed().then(function(instance) {
-    
-    // 	    exchangeInstance = instance;
-    // 	    console.log("Got instance, going to add from " + account);
-    // 	    return exchangeInstance.addToken(tokenName, tokenAddress, {"from": account});
-    
-    // 	}).then(function(tx_receipt) {
-    
-    // 	    console.log(tx_receipt);
-    // 	    App.setStatus("Added " + tokenName + " at " + tokenAddress);
-    
-    // 	}).catch(function(ex) {
-
-    // 	    console.log(ex);
-    // 	    alert("Error adding token");
-    // 	    App.setStatus("");
-    // 	});
-    
-    // },
-
-    // refreshBalanceEthExchange: function() {
-    // 	console.log("refreshBalanceEthExchange");
-
-    // 	var exchangeInstance;
-    // 	return ExchangeContract.deployed().then(function(instance) {
-    
-    // 	    exchangeInstance = instance;
-    // 	    return exchangeInstance.getEthBalanceInWei.call({"from": account});
-
-    // 	}).then(function(ethBalanceWei) {
-
-    // 	    console.log("ethBalanceWei=" + ethBalanceWei + " for " + account);
-    // 	    const element = document.getElementById("ethBalanceOnEx");
-    // 	    element.innerHTML = parseFloat(ethBalanceWei/1e18);
-    // 	});
-    // },
-    
-    // refreshBalanceFIXEDExchange: function () {
-    // 	console.log("refreshBalanceFIXEDExchange");
-    // 	var exchangeInstance;
-    // 	var balanceFixed = 0;
-    // 	return ExchangeContract.deployed().then(function(instance) {
-    
-    // 	    exchangeInstance = instance;
-    // 	    return exchangeInstance.getBalance.call("FIXED", {"from": account});
-
-    // 	}).then(function(fixedBalanceWei) {
-
-    // 	    balanceFixed = fixedBalanceWei;
-    // 	    console.log("fixedBalanceWei=" + fixedBalanceWei);
-
-    // 	}).catch(function(ex){
-    
-    // 	    console.error(ex);
-    // 	    App.setStatus("Unable to fetch TOKEN balance");
-    
-    // 	}).then(function() {
-
-    // 	    const element = document.getElementById("fixedBalanceOnEx");
-    // 	    element.innerHTML = balanceFixed;
-    // 	});
-    // },
-    
-    // refreshBalanceExchange: function() {
-    // 	App.refreshBalanceEthExchange();
-    // 	App.refreshBalanceFIXEDExchange();
-    // },
-    // depositEther: function() {
-
-    // 	console.log("deposit eth");
-
-    // 	var amountEth = parseFloat(document.getElementById("inputAmountDepositEther").value);
-    // 	var amountWei = new bigInt((amountEth * 1e18).toString());
-    // 	console.log("amountWei=" + amountWei);
-
-    // 	var exchangeInstance;
-    // 	return ExchangeContract.deployed().then(function(instance) {
-    
-    // 	    exchangeInstance = instance;
-    // 	    console.log("going to make transaction from " + account);
-    // 	    return exchangeInstance.depositEther({
-    // 		"from": account,
-    // 		"value": amountWei});
-
-    // 	}).then(function(tx_receipt) {
-    
-    // 	    console.log(tx_receipt);
-    // 	    App.setStatus("Deposited " + amountEth);
-    // 	    App.refreshBalanceExchange();
-    
-    // 	}).catch(function(ex) {
-
-    // 	    console.log(ex);
-    // 	    alert("Error depositing ether");
-    // 	    App.setStatus("");
-    // 	});
-
-
-
-    // },
-    // withdrawEther: function() {
-
-    // 	console.log("withdraw ether");
-
-    // 	var amountEth = parseFloat(document.getElementById("inputAmountWithdrawEther").value);
-    // 	var amountWei = new bigInt((amountEth * 1e18).toString());
-    // 	console.log("amountWei=" + amountWei);
-
-    // 	if (amountWei == null | isNaN(amountWei)) {
-    // 	    console.error("Invalid value provided.");
-    // 	    App.setStatus("Invalid value for ether amount provided. Not withdrawing.");
-    // 	    return false;
-    
-    // 	} else {
-    
-    // 	    var exchangeInstance;
-    // 	    return ExchangeContract.deployed().then(function(instance) {
-    
-    // 		exchangeInstance = instance;
-    // 		console.log("going to withdraw to " + account);
-    // 		return exchangeInstance.withdrawEther(amountWei, {"from": account});
-
-    // 	    }).then(function(tx_receipt) {
-    
-    // 		console.log(tx_receipt);
-    // 		App.setStatus("Withdrew " + amountEth + " to " + account);
-    // 		App.refreshBalanceExchange();
-    
-    // 	    }).catch(function(ex) {
-
-    // 		console.log("got error");
-    // 		console.log(ex);
-    // 		alert("Error withdrawing ether");
-    // 		App.setStatus("");
-    // 	    });
-
-    // 	}
-    // },
-    // depositToken: function() {
-    // 	//deposit token function
-    // },
-    // /**
-    //  * TRADING FUNCTIONS FROM HERE ON
-    //  */
-    // initTrading: function() {
-    // 	App.refreshBalanceExchange();
-    // 	App.printImportantInformation();
-    // 	App.updateOrderBooks();
-    // 	App.listenToTradingEvents();
-    // },
-    // updateOrderBooks: function() {
-    // 	//update the order books function
-    // },
-    // listenToTradingEvents: function() {
-    // 	//listen to trading events
-    // },
-    // sellToken: function() {
-    // 	//sell token
-    // },
-    // buyToken: function() {
-    // 	//buy token
-    // },
-
-    // /**
-    //  * TOKEN FUNCTIONS FROM HERE ON
-    //  */
-    // initManageToken: function() {
-    // 	App.updateTokenBalance();
-    // 	App.watchTokenEvents();
-    // 	App.watchExchangeEvents();
-    // 	App.printImportantInformation();
-    
-    
-    // },
-    // updateTokenBalance: function() {
-
-    // 	console.log("updateTokenBalance");
-
-    // 	var tokenInstance;
-    // 	TokenContract.deployed().then(function(instance) {
-
-    // 	    console.log("got instance");
-    // 	    tokenInstance = instance;
-
-    // 	    console.log("account (2)" + account);
-    // 	    return tokenInstance.balanceOf.call(account);
-    
-    // 	}).then(function(value) {
-
-    // 	    if (value == null) {
-    // 		console.log("Unable to get value, setting to -1");
-    // 		value = -1;
-    // 	    }
-    
-    // 	    var balance_element = document.getElementById("balanceTokenInToken");
-    // 	    console.log("Setting token balance value to: " + value);
-    // 	    balance_element.innerHTML = value.valueOf();
-    
-    // 	}).catch(function(e) {
-    
-    // 	    console.log(e);
-    // 	    App.setStatus("Error getting token balance");
-    
-    // 	});
-    
-    // },
-    // watchTokenEvents: function() {
-
-    // 	var tokenInstance;
-    // 	return TokenContract.deployed().then(function(instance) {
-
-    // 	    tokenInstance = instance;
-    // 	    tokenInstance.allEvents({}, {fromBlock: 0, toBlock: "latest"}).watch(
-    // 		function(err, result) {
-
-    // 		    console.log(result);
-    
-    // 		    var alertBox = document.createElement("div");
-    // 		    alertBox.setAttribute("class", "alert alert-info alert-dismissable");
-    // 		    var closeBtn = document.createElement("button");
-    // 		    closeBtn.setAttribute("type", "button");
-    // 		    closeBtn.setAttribute("class", "close");
-    // 		    closeBtn.setAttribute("data-dismiss", "alert");
-    // 		    closeBtn.innerHTML = "<span>&times</span>";
-    // 		    alertBox.appendChild(closeBtn);
-
-    // 		    var eventTitle = document.createElement("div");
-    // 		    eventTitle.innerHTML = "<strong>New event: " + result.event + "</strong>";
-    // 		    alertBox.appendChild(eventTitle);
-
-    // 		    var argsBox = document.createElement("textarea");
-    // 		    argsBox.setAttribute("class", "form-control");
-    // 		    argsBox.innerHTML = JSON.stringify(result.args);
-    // 		    alertBox.appendChild(argsBox);
-    // 		    document.getElementById("tokenEvents").appendChild(alertBox);
-
-    // 		}
-    // 	    );
-    // 	}).catch(function(e) {
-
-    // 	    console.log(e);
-    // 	    alert("Error watching for token events");
-    // 	});
-
-    // },
-
-    // sendToken: function() {
-
-    // 	console.log("Send token");
-
-    // 	var amount = parseInt(document.getElementById("inputAmountSendToken").value);
-    // 	var recipient = document.getElementById("inputBeneficiarySendToken").value;
-
-    // 	console.log("sendToken, got: " + amount + " to " + recipient + " from " + account);
-    
-    // 	App.setStatus("Initiating transaction, one moment please ...");
-
-    // 	var tokenInstance;
-    // 	return TokenContract.deployed().then(function(instance) {
-
-    // 	    tokenInstance = instance;
-    // 	    console.log("HERE AM I");
-    // 	    console.log("Transferring " + amount + " to " + recipient);
-    // 	    return tokenInstance.transfer(recipient, amount, {"from": account});
-    
-    // 	}).then(function(tx_receipt) {
-    // 	    console.log(tx_receipt);
-
-    // 	    App.setStatus("Transferrered " + amount + " to " + recipient);
-    // 	    App.updateTokenBalance();
-    
-    // 	}).catch(function(e) {
-    // 	    alert("Error sending tokens");
-    // 	    App.setStatus("");
-    // 	});
-    
-    // },
-
-    // allowanceToken: function() {
-
-    // 	console.log("allowanceToken");
-
-    // 	var amount = parseInt(document.getElementById("inputAmountAllowToken").value);
-    // 	var recipient = document.getElementById("inputBeneficiaryAllowToken").value;
-
-    // 	console.log("allowanceToken, got: " + amount + " to " + recipient + " from " + account);
-    
-    // 	App.setStatus("Initiating transaction, one moment please ...");
-
-    // 	var tokenInstance;
-    // 	return TokenContract.deployed().then(function(instance) {
-
-    //   	    tokenInstance = instance;
-
-    //   	    console.log("Allowing " + recipient + " to withdraw " + amount + " tokens");
-    //   	    return tokenInstance.approve(recipient, amount, {"from": account});
-    
-    // 	}).then(function(tx_receipt) {
-    //   	    console.log(tx_receipt);
-
-    //   	    App.setStatus("Allowed " + recipient + " to withdraw " + amount + " tokens");
-    //   	    App.updateTokenBalance();
-    
-    // 	}).catch(function(e) {
-    //   	    alert("Error approving token withdrawal");
-    //   	    App.setStatus("");
-    // 	});
-    // }
 };
 
 window.addEventListener('load', async function(args) {
+
     if (typeof web3 == 'undefined') {
 	console.warn("No web3 provider found (MetaMask, Mist, etc.)");
     } else {
+	console.log("Setting window web3 to that of current provider");
+	console.log(web3.currentProvider);
 	window.web3 = new Web3(web3.currentProvider);
+
     }
     await App.start();
 });
