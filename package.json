@@ -50,6 +50,7 @@
     "eslint-plugin-node": "^10.0.0",
     "imports-loader": "^0.8.0",
     "jquery": "^3.2.1",
+    "scrypt": "^6.0.3",
     "truffle-assertions": "^0.9.1",
     "truffle-hdwallet-provider": "^1.0.17"
   }

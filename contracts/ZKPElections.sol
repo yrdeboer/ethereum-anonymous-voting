@@ -2,8 +2,6 @@ pragma solidity ^0.5.11;
 
 contract ZKPElections {
 
-  enum VoterStatus { NoStatus, AwaitingVote, CastVote }
- 
   struct Candidate {
     uint name;
     uint voteCount;
@@ -16,7 +14,8 @@ contract ZKPElections {
     mapping (uint => Candidate) candidates;
     uint candidateCount;
 
-    mapping (address => VoterStatus) voterToStatus;
+    // 0: NoStatus 1: AwaitingVote 2: VoteCast
+    mapping (address => uint8) voterToStatus;
     uint voterCount;
   }
  
@@ -46,7 +45,7 @@ contract ZKPElections {
 	election.candidates[j].name = _candidates[j-1];
       }
       for (uint j = 1; j <= _voterAddresses.length; j ++) {
-	election.voterToStatus[_voterAddresses[j-1]] = VoterStatus.AwaitingVote;
+	election.voterToStatus[_voterAddresses[j-1]] = 1;
       }           
     }
 
@@ -74,52 +73,35 @@ contract ZKPElections {
   function getElectionKeysForOwner()
     external view returns (uint [] memory) {
 
-    uint keyCount = 0;
+    uint [] memory keys = new uint [] (electionCount);
+   
     for (uint i = 1; i <= electionCount; i ++) {
       if (elections[i].owner == msg.sender) {
-	keyCount += 1;
+	keys[i-1] = 1;
       }
     }
 
-    uint [] memory keys;
-    if (keyCount == 0) {
-      keys = new uint[](1);
-      keys[0] = 0;
-
-    } else {
-    
-      keys = new uint[](keyCount);
-      keyCount = 0;
-      for (uint i = 1; i <= electionCount; i ++) {
-	if (elections[i].owner == msg.sender) {
-	  keys[keyCount] = i;
-	  keyCount += 1;
-	}
-      }
-    }
     return keys;
   }
-  
-
+ 
   function getVoterStatus(uint _electionKey, uint _voterKey)
-    external view returns (VoterStatus) {
+    external view returns (uint8) {
 
     require(_electionKey <= electionCount);
     require(_voterKey <= elections[_electionKey].voterCount);
     return elections[_electionKey].voterToStatus[msg.sender];
   }
   
-  
   function castVote(uint _electionKey, uint _candidateKey) external {
     require(_electionKey <= electionCount);
         
     Election storage election = elections[_electionKey];
     require(!election.isClosed);
-    require(election.voterToStatus[msg.sender] == VoterStatus.AwaitingVote);
+    require(election.voterToStatus[msg.sender] == 1);
     require(_candidateKey <= election.candidateCount);
         
     election.candidates[_candidateKey].voteCount += 1;
-    election.voterToStatus[msg.sender] = VoterStatus.CastVote;
+    election.voterToStatus[msg.sender] = 2;
 
     emit VoteCast(_electionKey, _candidateKey);
   }

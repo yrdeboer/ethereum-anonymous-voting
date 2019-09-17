@@ -4,6 +4,32 @@ const truffleAssert = require('truffle-assertions');
 var zkpElectionsArtifact = artifacts.require("contracts/ZKPElections.sol");
 
 
+contract("Test ZKP empty calls", function(accounts) {
+
+    const ownerAccount = accounts[0];
+    const someUserAccount = accounts[5];
+
+    var zkpElections;
+
+    beforeEach("deploy contract", async function () {
+	zkpElections = await zkpElectionsArtifact.new({"from": ownerAccount});
+    });
+    
+    it("should get 0 elections from new contract", async function () {
+	
+	var electionCount = new bigInt(
+	    await zkpElections.electionCount.call({"from": someUserAccount}));
+	assert(electionCount.isZero());
+    });
+
+    it("should get empty array from new contract for user election keys", async function () {
+	
+	var keys = await zkpElections.getElectionKeysForOwner.call({"from": someUserAccount});
+	assert.equal(keys.length, 0);
+
+    });    
+});
+
 contract("Test ZKP elections election management", function(accounts) {
 
     const ownerAccount = accounts[0];
@@ -111,7 +137,7 @@ contract("Test ZKP elections election management", function(accounts) {
 	assert.equal(result[0], 1);
     });
 
-    it("should not zero election keys for non owner", async function () {
+    it("should get zero election keys for non owner", async function () {
 
 	var result = await zkpElections.getElectionKeysForOwner.call(
 	    {"from": someUserAccount});
@@ -173,7 +199,26 @@ contract("Test ZKP elections election management", function(accounts) {
 	    {"from": voterAccount2}));
     });
 
+    it("should deploy keys in right order", async function () {
 
+	// Add second election
+	var receipt = await zkpElections.addElection(
+	    [candidateName1, candidateName2],
+	    [voterAccount1, voterAccount2],
+	    {"from": someUserAccount});
 
-    
+	// Check election count
+	var electionCount = new bigInt(await zkpElections.electionCount.call());
+	assert(electionCount.isEqualTo(bigInt('2')));
+
+	// Check keys for owner of second election
+	var keys = await zkpElections.getElectionKeysForOwner(
+	    {"from": someUserAccount});
+	
+	assert.equal(keys.length, 2);
+	assert.equal(keys[0], 0);
+	assert.equal(keys[1], 1);
+	
+    });
+
 });
