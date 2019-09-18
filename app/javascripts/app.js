@@ -309,13 +309,13 @@ window.App = {
 	console.log(election);
 
 	let voterStatus = await window.App.getVoterStatus(electionKey);
-	
+
 	await window.App.displayElectionName(election[0].toString(16));
 	await window.App.displayElectionStatus(election[4]);
 	await window.App.displayVoteStatus(election);
 	await window.App.displayVoterStatus(election[4], voterStatus);
 	await window.App.displayCandidates(election, electionKey, voterStatus);
-	
+	await window.App.addCloseElectionButton(electionKey);
     },
 
     getVoterStatus: async function (electionKey) {
@@ -424,6 +424,11 @@ window.App = {
 	
     },
 
+    addCloseElectionButton: async function (electionKey) {
+	// Get user election keys and check if this one is among them.
+	// If so, add the button 
+    },
+    
     castVote: async function (electionKey, candidateKey) {
 
 	console.log("electionKey=" + electionKey + " " + electionKey.toString(16));
