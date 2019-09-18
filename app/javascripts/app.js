@@ -28,20 +28,21 @@ window.App = {
     
     start: async function() {
 
-	zkpElectionsContract.setProvider(web3.currentProvider);
-	zkpElections = await zkpElectionsContract.deployed();
-
-	console.log("Election contract at: " + zkpElectionsContract.address);
+	try {
+	    zkpElectionsContract.setProvider(window.web3.currentProvider);
+	    zkpElections = await zkpElectionsContract.deployed();
+	    console.log("Election contract at: " + zkpElectionsContract.address);
+	    
+	} catch (error) {
+	    alert("Could not find contract, are you connected to the right network?");
+	}
 	
-	web3.eth.getAccounts(async function(error, accounts) {
+	window.web3.eth.getAccounts(async function(error, accounts) {
 
-	    if (error != null) {
-		alert("There was an error fetching your accounts");
-		return;
-	    }
-
-	    if (accounts.length == 0) {
-		alert("Could not get active accounts");
+	    if (error != null || accounts.length == 0) {
+		var msg = "There was an error fetching your accounts, please";
+		msg += "connect a wallet (MetaMask, Mist, etc)";
+		alert(msg);
 		return;
 	    }
 
@@ -51,7 +52,7 @@ window.App = {
 	    console.log("set user account to:");
 	    console.log(userAccount);
 
-	    await App.route();
+	    await window.App.route();
 	    
 	});
 
@@ -59,11 +60,11 @@ window.App = {
 
     route: async function () {
 
-	console.log("route, pathname=" + location.pathname);
-	if (location.pathname == "/" || location.pathname == "/index.html") {
-	    App.initIndex();
-	} else if (location.pathname == "/election.html") {
-	    App.initElection();
+	console.log("route, pathname=" + window.location.pathname);
+	if (window.location.pathname == "/" || window.location.pathname == "/index.html") {
+	    window.App.initIndex();
+	} else if (window.location.pathname == "/election.html") {
+	    window.App.initElection();
 	}
 	
     },
@@ -72,12 +73,12 @@ window.App = {
 
 	console.log("initIndex");
 
-	let electionCount = new bigInt(await zkpElections.electionCount.call());
-	console.log("electionCount=" + electionCount);
+	if (zkpElections !== null) {
+	    
+	    let electionCount = new bigInt(await zkpElections.electionCount.call());
+	    console.log("electionCount=" + electionCount);
 
-	let userElectionKeys = [];
-	if (electionCount > 0) {
-	    userElectionKeys = App.getUserElectionKeys();
+	    let userElectionKeys = window.App.getUserElectionKeys();
 	}
 	
     },
@@ -123,7 +124,7 @@ window.App = {
 	}
 	console.log("initElection");
 	console.log("location:");
-	console.log(location);
+	console.log(window.location);
 	console.log("userAccount=" + userAccount);
     },
 
@@ -143,7 +144,7 @@ window.App = {
 	    
 	} else {
 
-	    App.addElection(canNamesLst, voterCount);
+	    window.App.addElection(canNamesLst, voterCount);
 	}
     },
     
@@ -216,13 +217,13 @@ window.App = {
 
 window.addEventListener('load', async function(args) {
 
-    if (typeof web3 == 'undefined') {
+    if (typeof window.web3 == 'undefined') {
 	console.warn("No web3 provider found (MetaMask, Mist, etc.)");
     } else {
 	console.log("Setting window web3 to that of current provider");
-	console.log(web3.currentProvider);
-	window.web3 = new Web3(web3.currentProvider);
-
+	console.log(window.web3.currentProvider);
+	window.web3 = new Web3(window.web3.currentProvider);
     }
-    await App.start();
+
+    await window.App.start();
 });
