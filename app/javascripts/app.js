@@ -18,7 +18,8 @@ import {
     hexStrToNameStr,
     getVoterAccounts,
     getRandomString,
-    createVoterListElements } from "../javascripts/utils.js";
+    createVoterListElements,
+    getURLParam } from "../javascripts/utils.js";
 
 var zkpElections = null;
 
@@ -116,7 +117,7 @@ window.App = {
 	    try {
 		let election = await zkpElections.getElection(userElectionKeys[i]);
 		console.log(election);
-		userElections[i] = election;
+		userElections[userElectionKeys[i]] = election;
 	    } catch (error) {
 		console.error("Unable to get election by key (" + userElectionKeys[i] + ")");
 	    }
@@ -128,6 +129,7 @@ window.App = {
     displayUserElections: async function (userElections) {
 
 	const electionsList = document.getElementById("electionsList");
+	electionsList.innerHTML = null;
 	
 	for (var key in userElections) {
 
@@ -140,6 +142,10 @@ window.App = {
 	    var li = document.createElement("li");
 	    li.setAttribute("class", "list-group-item");
 
+	    var href = 'window.location.href="/election.html?electionKey=' + key + '"';
+	    console.log("href=" + href);
+	    li.setAttribute("onclick", href);
+
 	    let votesCast = 0;
 	    for (var i = 0; i < candidateVoteCounts.length; i ++) {
 		votesCast += candidateVoteCounts[i].toNumber();
@@ -150,18 +156,6 @@ window.App = {
 	    var bn = new bigInt(tstHexStr);
 	    var hexStr = bn.toString(16);
 	    var out = hexStrToNameStr(hexStr);
-	    console.log("tst");
-	    console.log(tst);
-	    console.log(tstHexStr);
-	    console.log(bn);
-	    console.log(hexStr);
-	    console.log(out);
-	    console.log("---");
-	    
-	    console.log("displayUserElections, name:");
-	    console.log(name);
-	    console.log(name.toString(16));
-	    console.log(hexStrToNameStr(name.toString(16)));
 	    
 	    var txt = hexStrToNameStr(name.toString(16)) + " ";
 	    txt += candidates.length + " ";
@@ -173,24 +167,6 @@ window.App = {
 	}
     },
     
-    initElection: async function () {
-	
-	function getParam(paramName, urlPart) {
-
-	    var items = urlPart.split("&");
-	    for (var i = 0; i < items.length; i ++) {
-		var tmp = items[i].split("=");
-		if (tmp[0] == paramName) {
-		    return tmp[1];
-		}
-	    }
-
-	    return null;
-
-	}
-    },
-
-
     showVoterAccounts: async function () {
 
 	let electionName = document.getElementById("inputElectionName").value;
@@ -211,22 +187,55 @@ window.App = {
 	    var [voterAddresses, voterPrivateKeys] = getVoterAccounts(voterCount);
 	    await window.App.stageElection(
 		electionName,
-		canNames,
+		canNamesLst,
 		voterAddresses,
 	    );
-	    await createVoterListElements(voterPrivateKeys);
-	    await window.App.createSubmissionButton();
+	    await window.App.createVoterListElements(voterPrivateKeys);
 	}
     },
 
 
-    createSubmissionButton: async function () {
-	console.log("createSubmissionButton");
+    createVoterListElements: async function (voterKeys) {
+
+	const oldList = document.getElementById("privateKeyListElement");
+	if (oldList !== null) {
+	    oldList.remove();
+	}
 
 	const panelBody = document.getElementById("panelBodyForKeyList");
 
+	const ul = document.createElement("ul");
+	ul.setAttribute("class", "list-group");
+	ul.setAttribute("id", "privateKeyListElement");
+	panelBody.appendChild(ul);
+
+	console.log("voterKeys: " + voterKeys);
+
+	for (var i = 0; i < voterKeys.length; i ++ ){
+
+	    var li = document.createElement("li");
+	    li.setAttribute("class", "list-group-item");
+	    li.appendChild(document.createTextNode(voterKeys[i]));
+	    ul.appendChild(li);
+	}
+
+	await window.App.createSubmissionButton();
+    },
+
+    
+    createSubmissionButton: async function () {
+	console.log("createSubmissionButton");
+
+	const oldButton = document.getElementById("submitElection");
+	if (oldButton !== null) {
+	    oldButton.remove();
+	}
+	
+	const panelBody = document.getElementById("panelBodyForKeyList");
+	
 	var button = document.createElement("button");
 	button.setAttribute("class", "btn btn-default");
+	button.setAttribute("id", "submitElection");
 	button.setAttribute("onclick", "App.submitStagedElection();return false;");
 	button.innerHTML ="Yes, remove the keys and submit election";
 
@@ -235,6 +244,9 @@ window.App = {
     
     
     stageElection: async function (electionNameStr, canNamesLst, voterAddresses) {
+
+	console.log("stageElection, canNamesLst:");
+	console.log(canNamesLst);
 	
 	var candidatesHexStrList = [];
 	for (var i = 0; i < canNamesLst.length; i ++) {
@@ -272,6 +284,8 @@ window.App = {
 	    stagedElection = null;
 	    
 	    console.log(receipt);
+
+	    await window.App.initIndex();
 	}
     },
     
@@ -282,40 +296,81 @@ window.App = {
 	
     },
     
-    initElections: async function() {
+    initElection: async function () {
+	
+	console.log("initElection");
 
-	console.log("initElections");
-	const electionsList = document.getElementById("electionsList");
-	electionsList.innerHTML = "";
-	var electionCount = await zkpElections.electionCount.call();
+	var electionKey = getURLParam("electionKey", window.location.search);
+	console.log(electionKey);
 
-	var cntSpan = document.getElementById("electionCount");
-	cntSpan.innerHTML = electionCount;
+	let election = await zkpElections.getElection(electionKey);
+	console.log(election);
 
-	if (parseInt(electionCount) > 0) {
+	await window.App.displayElectionName(election[0].toString(16));
+	await window.App.displayElectionStatus(election[4]);
+	await window.App.displayVoteStatus(election);
+	await window.App.displayCandidates(election);
+	
+    },
 
-	    for (var electionId = 1; electionId <= electionCount; electionId ++ ) {
+    displayElectionName: async function (electionNameHexStr) {
+	var name = hexStrToNameStr(electionNameHexStr);
+	const nameNode = document.getElementById("electionName");
+	nameNode.innerHTML = name;
+    },
+    
+    displayElectionStatus: async function (isClosed) {
+	const statusNode = document.getElementById("electionStatus");
 
-		var result = await zkpElections.getElection.call(
-		    bigInt(electionId).toString());
-
-		var li = document.createElement("li");
-		li.setAttribute("class", "list-group-item col-xs-6");
-		li.innerHTML = result[0];
-		electionsList.appendChild(li);
-		
-		var challenge = result[0];
-		var prizeMoneyETH = parseFloat(result[1] / 1e18);
-
-		var li2 = document.createElement("li");
-		li2.setAttribute("class", "list-group-item col-xs-6");
-		li2.innerHTML = prizeMoneyETH;
-		electionsList.appendChild(li2);
-	    }
-	    
+	if (isClosed === null) {
+	    statusNode.innerHTML = "Unknown";
+	} else if (isClosed === false) {
+	    statusNode.innerHTML = "Accepting votes";
+	} else if (isClosed === true) {
+	    statusNode.innerHTML = "Closed";
 	}
     },
 
+    displayVoteStatus: async function (election) {
+
+	var voteCounts = election[2];
+	var votesCast = 0;
+	for (var i = 0; i < voteCounts.length; i ++) {
+	    votesCast += voteCounts[i].toNumber();
+	}
+
+	const votesNode = document.getElementById("votesStatus");
+	votesNode.innerHTML = "" + votesCast + "/" + election[3].toNumber();
+    },
+
+    displayCandidates: async function (election) {
+
+	var candidates = election[1];
+	var voteCounts = election[2];
+	var isClosed = election[4];
+
+	const canList = document.getElementById("candidateList");
+	canList.innerHTML = "";
+
+	console.log("displayCandidates");
+	for (var i = 0; i < candidates.length; i ++) {
+
+	    console.log("candidates[i]=" + candidates[i]);
+
+	    
+	    var li = document.createElement("li");
+	    li.setAttribute("class", "list-group-item");
+	    
+	    var txt = hexStrToNameStr(candidates[i].toString(16)) + " ";
+	    txt += voteCounts[i] + " ";
+	    txt += "VOTE BUTTON";
+	    li.innerHTML = txt;
+
+	    canList.appendChild(li);
+	}	
+	
+    },
+    
 };
 
 window.addEventListener('load', async function(args) {

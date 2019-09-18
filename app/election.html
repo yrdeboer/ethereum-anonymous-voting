@@ -7,71 +7,44 @@
 	    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 	<script src="./app.js"></script>
     </head>
+
     <body>
-	<p id="demo" onclick="App.blub();return false">Click me</p>
+
 	<div class="container-fluid">
 
 	    <div class="panel panel-primary">
-		<div class="panel-heading"><h3>Elections</h3></div>
-	    </div>
-	    
-	    <div class="col-lg-6">
-		<div class="panel panel-info">
-		    <div class="panel-heading">
-			<h4>There are <span id="electionCount"></span> elections:</h4>
-		    </div>
-		    
-		    <ul class="list-group" id="electionsList">
-		    </ul>
+		<div class="panel-heading">
+		    <h3>Election details</h3> 
 		</div>
-	    </div>
 
-	    <div class="row">
-		<button
-		    type="button"
-		    onclick="App.alertMe(4,5);return false;">
-		    Vote
-		</button>
-	    </div>
-	    
-	    <div class="col-lg-6">
+		<div class="panel-body">
 
-		<div class="panel panel-success">
-		    <div class="panel-heading"><h4>Create a new election</h4></div>
-		    <div class="panel-body">
+
+		    <ul class="list-group">
+
+			<li class="list-group-item">
+			    <b>Name:</b> <span id="electionName">Unknown</span>
+			</li>
 			
-			<form>
-			    <div class="form-group">
-				<label for="inputElectionChallenge">Challenge</label>
-				<input
-				    type="text"
-				    name="inputElectionChallenge"
-				    class="form-control"
-				    id="inputElectionChallenge"
-				    placeholder="Funniest financial quote ever?">
-			    </div>
 
-			    <div class="form-group">
-				<label for="inputElectionPrizeEth">Prize money (ETH)</label>
-				<input
-				    type="text"
-				    name="inputElectionPrizeEth"
-				    class="form-control"
-				    id="inputElectionPrizeEth"
-				    placeholder="1">
-			    </div>
+			<li class="list-group-item">
+			    <b>Status:</b> <span id="electionStatus">Unknown</span>
+			</li>
+			<li class="list-group-item">
+			    <b>Votes cast:</b> <span id="votesStatus">?/?</span>
+			</li>
+		    </ul>
 
-			    <button
-				type="button"
-				class="btn btn-default"
-				onclick="App.addElection();return false;">
-				Add election
-			    </button>
-
-			</form>
-
-		    </div> <!-- panel -->
-		    
+		    <div class="panel panel-info">
+			<div class="panel-heading">
+			    <h3>Candidates:</h3>
+			</div>
+			
+			<div class="panel-body">
+			    <ul class="list-group" id="candidateList"></ul>
+			</div>
+			
+		    </div> <!-- panel body primary -->
 		</div>
 		
 	    </div> <!-- container -->

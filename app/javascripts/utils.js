@@ -7,7 +7,6 @@ export function nameStrToHexStr(nameStr) {
     var hexStr = "0x";
     for(var i=0;i<len;i++) {
         hexStr += "" + nameStr.charCodeAt(i).toString(16);
-	console.log("nameStrToHexStr: " +  hexStr);
     }
     return hexStr;
 }
@@ -63,23 +62,17 @@ export function getVoterAccounts(voterCount) {
     return [addrs, keys];
 }
 
-export function createVoterListElements(voterKeys) {
 
-    const panelBody = document.getElementById("panelBodyForKeyList");
-    const ul = document.createElement("ul");
-    ul.setAttribute("class", "list-group");
-    ul.setAttribute("id", "privateKeyListElement");
-    panelBody.appendChild(ul);
+export function getURLParam(paramName, locationSearchStr) {
 
-    console.log("voterKeys: " + voterKeys);
-
-    for (var i = 0; i < voterKeys.length; i ++ ){
-
-	var li = document.createElement("li");
-	li.setAttribute("class", "list-group-item");
-	li.appendChild(document.createTextNode(voterKeys[i]));
-	ul.appendChild(li);
+    var items = locationSearchStr.substr(1).split("&");
+    for (var i = 0; i < items.length; i ++) {
+	var tmp = items[i].split("=");
+	if (tmp[0] == paramName) {
+	    return tmp[1];
+	}
     }
 
-    
+    return null;
+
 }
