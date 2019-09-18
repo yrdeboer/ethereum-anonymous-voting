@@ -128,8 +128,8 @@ window.App = {
 
     displayUserElections: async function (userElections) {
 
-	const electionsList = document.getElementById("electionsList");
-	electionsList.innerHTML = null;
+	const electionsTable = document.getElementById("electionsTable");
+	electionsTable.innerHTML = null;
 	
 	for (var key in userElections) {
 
@@ -138,32 +138,34 @@ window.App = {
 	    const candidateVoteCounts = userElections[key][2];
 	    const voterCount = userElections[key][3].toNumber();
 	    const electionClosed = userElections[key][4];
-	    
-	    var li = document.createElement("li");
-	    li.setAttribute("class", "list-group-item");
 
+	    // Create clickable row
+	    var tr = document.createElement("tr");
 	    var href = 'window.location.href="/election.html?electionKey=' + key + '"';
 	    console.log("href=" + href);
-	    li.setAttribute("onclick", href);
+	    tr.setAttribute("onclick", href);
 
+	    // Add name column to this row
+	    var tdName = document.createElement("td");
+	    tdName.innerHTML = hexStrToNameStr(name.toString(16));
+	    tr.appendChild(tdName);
+
+	    // Add candidate count
+	    var tdCnt = document.createElement("td");
+	    tdCnt.innerHTML = candidates.length;
+	    tr.appendChild(tdCnt);
+
+	    // Add votes info
 	    let votesCast = 0;
 	    for (var i = 0; i < candidateVoteCounts.length; i ++) {
 		votesCast += candidateVoteCounts[i].toNumber();
 	    }
-
-	    var tst = "Gold";
-	    var tstHexStr = nameStrToHexStr(tst);
-	    var bn = new bigInt(tstHexStr);
-	    var hexStr = bn.toString(16);
-	    var out = hexStrToNameStr(hexStr);
+	    var tdVotes = document.createElement("td");
+	    var txt = "" + votesCast + "/" + candidateVoteCounts.length;
+	    tdVotes.innerHTML = txt;
+	    tr.appendChild(tdVotes);
 	    
-	    var txt = hexStrToNameStr(name.toString(16)) + " ";
-	    txt += candidates.length + " ";
-	    txt += votesCast + "/" + voterCount;
-	    var txtNode = document.createTextNode(txt);
-
-	    li.appendChild(txtNode);
-	    electionsList.appendChild(li);
+	    electionsTable.appendChild(tr);
 	}
     },
     
@@ -306,13 +308,33 @@ window.App = {
 	let election = await zkpElections.getElection(electionKey);
 	console.log(election);
 
+	let voterStatus = await window.App.getVoterStatus(electionKey);
+	
 	await window.App.displayElectionName(election[0].toString(16));
 	await window.App.displayElectionStatus(election[4]);
 	await window.App.displayVoteStatus(election);
-	await window.App.displayCandidates(election);
+	await window.App.displayVoterStatus(election[4], voterStatus);
+	await window.App.displayCandidates(election, electionKey, voterStatus);
 	
     },
 
+    getVoterStatus: async function (electionKey) {
+
+	// Voter status: 0: Not voting, 1: awaiting to vote 2: voted
+	var voterStatus = 0;
+	try {
+	    voterStatus = new bigInt(await zkpElections.getVoterStatus.call(
+		electionKey,
+		{"from": userAccount})).toNumber();
+
+	    console.log("got voter status from block: " + voterStatus);
+	    
+	} catch(error) {
+	    console.error("Error getting voter status");
+	}
+	return voterStatus;
+    },
+    
     displayElectionName: async function (electionNameHexStr) {
 	var name = hexStrToNameStr(electionNameHexStr);
 	const nameNode = document.getElementById("electionName");
@@ -343,32 +365,80 @@ window.App = {
 	votesNode.innerHTML = "" + votesCast + "/" + election[3].toNumber();
     },
 
-    displayCandidates: async function (election) {
+    displayVoterStatus: async function (isClosed, voterStatus) {
+
+	const statusNode = document.getElementById("voterStatus");
+	if (isClosed) {
+	    statusNode.innerHTML = "Closed";
+	} else if (voterStatus == 0) {
+	    statusNode.innerHTML = "Not voting";
+	} else if (voterStatus == 1) {
+	    statusNode.innerHTML = "Voting";
+	} else if (voterStatus == 2) {
+	    statusNode.innerHTML = "Vote cast";
+	};
+    },
+
+    displayCandidates: async function (election, electionKey, voterStatus) {
 
 	var candidates = election[1];
 	var voteCounts = election[2];
 	var isClosed = election[4];
 
-	const canList = document.getElementById("candidateList");
-	canList.innerHTML = "";
+	const canTable = document.getElementById("candidatesTable");
+	canTable.innerHTML = "";
 
 	console.log("displayCandidates");
 	for (var i = 0; i < candidates.length; i ++) {
 
-	    console.log("candidates[i]=" + candidates[i]);
-
+	    var candidateKey = i + 1;
 	    
-	    var li = document.createElement("li");
-	    li.setAttribute("class", "list-group-item");
-	    
-	    var txt = hexStrToNameStr(candidates[i].toString(16)) + " ";
-	    txt += voteCounts[i] + " ";
-	    txt += "VOTE BUTTON";
-	    li.innerHTML = txt;
+	    var tr = document.createElement("tr");
 
-	    canList.appendChild(li);
+	    // Add candidate name
+	    var tdName = document.createElement("td");
+	    tdName.innerHTML = hexStrToNameStr(candidates[i].toString(16));
+	    tr.appendChild(tdName);
+
+	    // Add their vote count
+	    var tdVotes = document.createElement("td");
+	    tdVotes.innerHTML = voteCounts[i];
+	    tr.appendChild(tdVotes);
+
+	    // Append vote button
+	    var tdButton = document.createElement("td");
+
+	    // Voterstatus
+	    if (!isClosed && voterStatus == 1) {
+		var button  = document.createElement("button");
+		button.setAttribute("class", "btn btn-default");
+		var clck = "App.castVote(" + electionKey;
+		clck += "," + candidateKey + ");return false;";
+		button.setAttribute("onclick", clck);
+		button.innerHTML = "Vote";
+		tdButton.appendChild(button);
+	    }
+	    tr.appendChild(tdButton);
+	    canTable.appendChild(tr);
 	}	
 	
+    },
+
+    castVote: async function (electionKey, candidateKey) {
+
+	console.log("electionKey=" + electionKey + " " + electionKey.toString(16));
+	console.log("candidateKey=" + candidateKey + " " + candidateKey.toString(16));
+	
+	console.log("0x" + electionKey.toString(16));
+	console.log("0x" + candidateKey.toString(16));
+	
+	var receipt = await zkpElections.castVote(
+	    electionKey.toString(16),
+	    candidateKey.toString(16),
+	    {"from": userAccount});
+	console.log(receipt);
+
+	window.App.initElection();
     },
     
 };

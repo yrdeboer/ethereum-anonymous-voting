@@ -92,7 +92,6 @@ contract("Test ZKP elections election management", function(accounts) {
 
 	let status = new bigInt(await zkpElections.getVoterStatus.call(
 	    1,
-	    1,
 	    {"from": someUserAccount}));
 	assert(status.isEqualTo(bigInt('0')));
     });
@@ -100,7 +99,6 @@ contract("Test ZKP elections election management", function(accounts) {
     it("should return proper voter status of voter that cast", async function () {
 
 	let status = new bigInt(await zkpElections.getVoterStatus.call(
-	    1,
 	    1,
 	    {"from": voterAccount1}));
 	assert(status.isEqualTo(bigInt('2')));
@@ -110,7 +108,6 @@ contract("Test ZKP elections election management", function(accounts) {
        async function () {
 
 	let status = new bigInt(await zkpElections.getVoterStatus.call(
-	    1,
 	    1,
 	    {"from": voterAccount2}));
 	assert(status.isEqualTo(bigInt('1')));
@@ -122,14 +119,6 @@ contract("Test ZKP elections election management", function(accounts) {
 	    electionKey,
 	    {"from": someUserAccount});
 
-	console.log(result);
-	console.log(result[0]);
-	console.log(bigInt(result[0]));
-	console.log(typeof result[0]);
-	console.log(result[0].isZero());
-	console.log(bigInt(electionName1));
-	console.log(bigInt(result[0]).isEqualTo(bigInt(electionName1)));
-	
 	assert(bigInt(result[0]).isEqualTo(bigInt(electionName1)));
 	assert.equal(result[1].length, 2);
 	assert.equal(result[1][0], candidateName1);

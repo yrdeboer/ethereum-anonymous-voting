@@ -87,11 +87,10 @@ contract ZKPElections {
     return keys;
   }
  
-  function getVoterStatus(uint _electionKey, uint _voterKey)
+  function getVoterStatus(uint _electionKey)
     external view returns (uint8) {
 
     require(_electionKey <= electionCount);
-    require(_voterKey <= elections[_electionKey].voterCount);
     return elections[_electionKey].voterToStatus[msg.sender];
   }
   
