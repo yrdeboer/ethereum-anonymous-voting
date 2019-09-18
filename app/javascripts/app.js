@@ -74,11 +74,10 @@ window.App = {
 	console.log("initIndex");
 
 	if (zkpElections !== null) {
-	    
-	    let electionCount = new bigInt(await zkpElections.electionCount.call());
-	    console.log("electionCount=" + electionCount);
-
-	    let userElectionKeys = window.App.getUserElectionKeys();
+	    let userElectionKeys = await window.App.getUserElectionKeys();
+	    await window.App.displayUserElectionCount(userElectionKeys);
+	    let userElections = await window.App.getUserElections(userElectionKeys);
+	    window.App.displayUserElections(userElections);
 	}
 	
     },
@@ -87,24 +86,69 @@ window.App = {
 	
 	let keys = await zkpElections.getElectionKeysForOwner.call({"from": userAccount});
 	console.log(keys);
-	
 	let userElectionKeys = [];
 	for (var i = 0; i < keys.length; i ++) {
 	    if (keys[i].toNumber() == 1) {
 		userElectionKeys.push(i+1);
 	    }
 	}
+	return userElectionKeys.reverse();
+    },
+
+    displayUserElectionCount: async function (userElectionKeys) {
 
 	console.log(userElectionKeys);
-	
 	const element = document.getElementById("userElectionCount");
 	if (userElectionKeys.length == 0) {
 	    element.innerHTML = "<h3>You have no elections</h3>";
 	} else {
 	    element.innerHTML = "<h3>You have " + userElectionKeys.length + " elections</h3>";
 	}
+    },
 
-	return userElectionKeys;
+    getUserElections: async function (userElectionKeys) {
+
+	// Keys are reversed already
+	var userElections = {};
+	for (var i = 0; i < userElectionKeys.length; i ++) {
+	    try {
+		let election = await zkpElections.getElection(userElectionKeys[i]);
+		console.log(election);
+		userElections[i] = election;
+	    } catch (error) {
+		console.error("Unable to get election by key (" + userElectionKeys[i] + ")");
+	    }
+	}
+	console.log(userElections);
+	return userElections;
+    },
+
+    displayUserElections: async function (userElections) {
+
+	const electionsList = document.getElementById("electionsList");
+	
+	for (var key in userElections) {
+
+	    const candidates = userElections[key][0];
+	    const candidateVoteCounts = userElections[key][1];
+	    const voterCount = userElections[key][2].toNumber();
+	    const electionClosed = userElections[key][3];
+	    
+	    var li = document.createElement("li");
+	    li.setAttribute("class", "list-group-item");
+
+	    let votesCast = 0;
+	    for (var i = 0; i < candidateVoteCounts.length; i ++) {
+		votesCast += candidateVoteCounts[i].toNumber();
+	    }
+	    
+	    var txt = "Name " + userElections[key][0].length;
+	    txt += " " + votesCast + "/" + voterCount;
+	    var txtNode = document.createTextNode(txt);
+
+	    li.appendChild(txtNode);
+	    electionsList.appendChild(li);
+	}
     },
     
     initElection: async function () {
@@ -122,10 +166,6 @@ window.App = {
 	    return null;
 
 	}
-	console.log("initElection");
-	console.log("location:");
-	console.log(window.location);
-	console.log("userAccount=" + userAccount);
     },
 
     addCandidateNames: async function () {
@@ -220,10 +260,7 @@ window.addEventListener('load', async function(args) {
     if (typeof window.web3 == 'undefined') {
 	console.warn("No web3 provider found (MetaMask, Mist, etc.)");
     } else {
-	console.log("Setting window web3 to that of current provider");
-	console.log(window.web3.currentProvider);
 	window.web3 = new Web3(window.web3.currentProvider);
     }
-
     await window.App.start();
 });
