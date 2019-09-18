@@ -32,6 +32,9 @@ contract("Test ZKP empty calls", function(accounts) {
 
 contract("Test ZKP elections election management", function(accounts) {
 
+    const electionName1 = '0x456c656374';  // "Election 1"
+    const electionName2 = '0x456c656374696f6e2032';  // "Election 2"
+    
     const ownerAccount = accounts[0];
 
     const candidateAccount1 = accounts[1];
@@ -56,6 +59,7 @@ contract("Test ZKP elections election management", function(accounts) {
 
 	// Add election
 	var receipt = await zkpElections.addElection(
+	    electionName1,
 	    [candidateName1, candidateName2],
 	    [voterAccount1, voterAccount2],
 	    {"from": ownerAccount});
@@ -118,14 +122,23 @@ contract("Test ZKP elections election management", function(accounts) {
 	    electionKey,
 	    {"from": someUserAccount});
 
-	assert.equal(result[0].length, 2);
-	assert.equal(result[0][0], candidateName1);
-	assert.equal(result[0][1], candidateName2);	
+	console.log(result);
+	console.log(result[0]);
+	console.log(bigInt(result[0]));
+	console.log(typeof result[0]);
+	console.log(result[0].isZero());
+	console.log(bigInt(electionName1));
+	console.log(bigInt(result[0]).isEqualTo(bigInt(electionName1)));
+	
+	assert(bigInt(result[0]).isEqualTo(bigInt(electionName1)));
 	assert.equal(result[1].length, 2);
-	assert.equal(result[1][0], 1);
-	assert.equal(result[1][1], 0);
-	assert.equal(result[2], 2);
-	assert.equal(result[3], false);
+	assert.equal(result[1][0], candidateName1);
+	assert.equal(result[1][1], candidateName2);	
+	assert.equal(result[2].length, 2);
+	assert.equal(result[2][0], 1);
+	assert.equal(result[2][1], 0);
+	assert.equal(result[3], 2);
+	assert.equal(result[4], false);
     });
 
     it("should get election keys for owner", async function () {
@@ -160,7 +173,7 @@ contract("Test ZKP elections election management", function(accounts) {
 	    {"from": someUserAccount});
 
 	// First candidate now has 2 votes
-	assert.equal(result[1][0], 2);	
+	assert.equal(result[2][0], 2);	
     });
 
     it("should not accept vote by non registered voter", async function () {
@@ -203,6 +216,7 @@ contract("Test ZKP elections election management", function(accounts) {
 
 	// Add second election
 	var receipt = await zkpElections.addElection(
+	    electionName2,
 	    [candidateName1, candidateName2],
 	    [voterAccount1, voterAccount2],
 	    {"from": someUserAccount});

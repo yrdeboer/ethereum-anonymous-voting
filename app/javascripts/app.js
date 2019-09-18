@@ -14,7 +14,8 @@ import zkpElectionsArtifact from '../../build/contracts/ZKPElections.json';
 var zkpElectionsContract = contract(zkpElectionsArtifact);
 
 import {
-    getCandidateNamesInt,
+    nameStrToHexStr,
+    hexStrToNameStr,
     getVoterAccounts,
     getRandomString,
     createVoterListElements } from "../javascripts/utils.js";
@@ -23,6 +24,7 @@ var zkpElections = null;
 
 var allAccounts;
 var userAccount;
+var stagedElection = null;
 
 window.App = {
     
@@ -129,10 +131,11 @@ window.App = {
 	
 	for (var key in userElections) {
 
-	    const candidates = userElections[key][0];
-	    const candidateVoteCounts = userElections[key][1];
-	    const voterCount = userElections[key][2].toNumber();
-	    const electionClosed = userElections[key][3];
+	    const name = userElections[key][0];
+	    const candidates = userElections[key][1];
+	    const candidateVoteCounts = userElections[key][2];
+	    const voterCount = userElections[key][3].toNumber();
+	    const electionClosed = userElections[key][4];
 	    
 	    var li = document.createElement("li");
 	    li.setAttribute("class", "list-group-item");
@@ -141,9 +144,28 @@ window.App = {
 	    for (var i = 0; i < candidateVoteCounts.length; i ++) {
 		votesCast += candidateVoteCounts[i].toNumber();
 	    }
+
+	    var tst = "Gold";
+	    var tstHexStr = nameStrToHexStr(tst);
+	    var bn = new bigInt(tstHexStr);
+	    var hexStr = bn.toString(16);
+	    var out = hexStrToNameStr(hexStr);
+	    console.log("tst");
+	    console.log(tst);
+	    console.log(tstHexStr);
+	    console.log(bn);
+	    console.log(hexStr);
+	    console.log(out);
+	    console.log("---");
 	    
-	    var txt = "Name " + userElections[key][0].length;
-	    txt += " " + votesCast + "/" + voterCount;
+	    console.log("displayUserElections, name:");
+	    console.log(name);
+	    console.log(name.toString(16));
+	    console.log(hexStrToNameStr(name.toString(16)));
+	    
+	    var txt = hexStrToNameStr(name.toString(16)) + " ";
+	    txt += candidates.length + " ";
+	    txt += votesCast + "/" + voterCount;
 	    var txtNode = document.createTextNode(txt);
 
 	    li.appendChild(txtNode);
@@ -168,8 +190,10 @@ window.App = {
 	}
     },
 
-    addCandidateNames: async function () {
 
+    showVoterAccounts: async function () {
+
+	let electionName = document.getElementById("inputElectionName").value;
 	let canNames = document.getElementById("inputCandidateNames").value;
 	let canNamesLst = canNames.split(",");
 	let voterCount = document.getElementById("inputVoterCount").value;
@@ -184,27 +208,71 @@ window.App = {
 	    
 	} else {
 
-	    window.App.addElection(canNamesLst, voterCount);
+	    var [voterAddresses, voterPrivateKeys] = getVoterAccounts(voterCount);
+	    await window.App.stageElection(
+		electionName,
+		canNames,
+		voterAddresses,
+	    );
+	    await createVoterListElements(voterPrivateKeys);
+	    await window.App.createSubmissionButton();
 	}
     },
+
+
+    createSubmissionButton: async function () {
+	console.log("createSubmissionButton");
+
+	const panelBody = document.getElementById("panelBodyForKeyList");
+
+	var button = document.createElement("button");
+	button.setAttribute("class", "btn btn-default");
+	button.setAttribute("onclick", "App.submitStagedElection();return false;");
+	button.innerHTML ="Yes, remove the keys and submit election";
+
+	panelBody.appendChild(button);
+    },
     
-    addElection: async function (canNamesLst, voterCount) {
-
-	var candidatesInt = getCandidateNamesInt(canNamesLst);
-	var [voterAddresses, voterPrivateKeys] = getVoterAccounts(voterCount);
-	createVoterListElements(voterPrivateKeys);
-
-	console.log(candidatesInt);
-	console.log(voterAddresses);
-
-	var receipt = await zkpElections.addElection(
-	    candidatesInt,
-	    voterAddresses,
-	    {"from": userAccount});
-
-	console.log(receipt);
-	    
+    
+    stageElection: async function (electionNameStr, canNamesLst, voterAddresses) {
 	
+	var candidatesHexStrList = [];
+	for (var i = 0; i < canNamesLst.length; i ++) {
+	    candidatesHexStrList.push(nameStrToHexStr(canNamesLst[i]));
+	}
+
+	stagedElection = {};
+	stagedElection["nameHexStr"] = nameStrToHexStr(electionNameStr);
+	stagedElection["candidateHexStrList"] = candidatesHexStrList;
+	stagedElection["voterAddresses"] = voterAddresses;
+	stagedElection["kwargs"] = {"from": userAccount};
+
+	console.log("stageElection, election:");
+	console.log(stagedElection);
+    },
+	
+
+    submitStagedElection: async function (electionNameStr, canNamesLst, voterCount) {
+
+	console.log("submitStagedElection");
+	console.log(stagedElection);
+
+	document.getElementById("privateKeyListElement").remove();
+	
+	if (stagedElection == null) {
+	    alert("No election staged for submission");
+	} else {
+	
+	    var receipt = await zkpElections.addElection(
+		stagedElection["nameHexStr"],
+		stagedElection["candidateHexStrList"],
+		stagedElection["voterAddresses"],
+		stagedElection["kwargs"]);
+
+	    stagedElection = null;
+	    
+	    console.log(receipt);
+	}
     },
     
     setStatus: async function(statusMsg) {
@@ -247,11 +315,6 @@ window.App = {
 	    
 	}
     },
-
-    // setStatus: function(message) {
-    // 	var status = document.getElementById("status");
-    // 	status.insertAdjacentHTML("beforeEnd", "<br>" + message + "</br>");
-    // },
 
 };
 

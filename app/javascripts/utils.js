@@ -1,23 +1,24 @@
 var Accounts = require('web3-eth-accounts');
 
 
-function stringToHex(str, maxLength) {
+export function nameStrToHexStr(nameStr) {
 
-    var len = Math.min(str.length, maxLength);
-    var hex = '';
+    var len = Math.min(nameStr.length, 32);
+    var hexStr = "0x";
     for(var i=0;i<len;i++) {
-        hex += ''+str.charCodeAt(i).toString(16);
+        hexStr += "" + nameStr.charCodeAt(i).toString(16);
+	console.log("nameStrToHexStr: " +  hexStr);
     }
-    return hex;
+    return hexStr;
 }
 
 
-function hexToString (hexstr) {
+export function hexStrToNameStr (hexStr) {
 
-    var str = '';
-    for (var i = 0; (i < hexstr.length && hexstr.substr(i, 2) !== '00'); i += 2)
-        str += String.fromCharCode(parseInt(hexstr.substr(i, 2), 16));
-    return str;
+    var nameStr = "";
+    for (var i = 0; (i < hexStr.length && hexStr.substr(i, 2) !== '00'); i += 2)
+        nameStr += String.fromCharCode(parseInt(hexStr.substr(i, 2), 16));
+    return nameStr;
 }
 
 
@@ -39,16 +40,6 @@ function getRandomString(strLength) {
     return randomStr;
 }
 
-
-export function getCandidateNamesInt(namesStrLst) {
-
-    var namesInt = [];
-    for (var i = 0; i < namesStrLst.length; i ++ ){
-	var nr = parseInt(stringToHex(namesStrLst[i].trim(), 32));
-	namesInt.push(nr);
-    }
-    return namesInt;
-}
 
 export function getVoterAccounts(voterCount) {
 
@@ -77,6 +68,7 @@ export function createVoterListElements(voterKeys) {
     const panelBody = document.getElementById("panelBodyForKeyList");
     const ul = document.createElement("ul");
     ul.setAttribute("class", "list-group");
+    ul.setAttribute("id", "privateKeyListElement");
     panelBody.appendChild(ul);
 
     console.log("voterKeys: " + voterKeys);

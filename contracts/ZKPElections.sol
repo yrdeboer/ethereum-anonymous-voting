@@ -8,6 +8,7 @@ contract ZKPElections {
   }
  
   struct Election {
+    uint name;
     address owner;
     bool isClosed;
         
@@ -22,11 +23,12 @@ contract ZKPElections {
   mapping (uint => Election) public elections;
   uint public electionCount;
 
-  event ElectionAdded(uint _electionKey);
+  event ElectionAdded(uint name, uint _electionKey);
   event ElectionClosed(uint _electionKey);
   event VoteCast(uint _electionKey, uint _candidateKey);
   
-  function addElection(uint [] calldata _candidates,
+  function addElection(uint _name,
+		       uint [] calldata _candidates,
 		       address [] calldata _voterAddresses) external {
         
     require(_candidates.length >= 1);
@@ -34,7 +36,8 @@ contract ZKPElections {
         
     electionCount += 1;
     Election storage election = elections[electionCount];
-        
+
+    election.name = _name;
     election.owner = msg.sender;
     election.isClosed = false;
     election.candidateCount = _candidates.length;
@@ -49,11 +52,11 @@ contract ZKPElections {
       }           
     }
 
-    emit ElectionAdded(electionCount);
+    emit ElectionAdded(_name, electionCount);
   }
     
   function getElection(uint _electionKey)
-    external view returns (uint [] memory, uint [] memory, uint, bool) {
+    external view returns (uint, uint [] memory, uint [] memory, uint, bool) {
         
     require (_electionKey <= electionCount);
         
@@ -67,7 +70,7 @@ contract ZKPElections {
       vCnts[i-1] = election.candidates[i].voteCount;
     }
         
-    return (cands, vCnts, election.voterCount, election.isClosed);
+    return (election.name, cands, vCnts, election.voterCount, election.isClosed);
   }
 
   function getElectionKeysForOwner()
