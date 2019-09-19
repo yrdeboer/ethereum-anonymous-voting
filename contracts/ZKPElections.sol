@@ -33,6 +33,10 @@ contract ZKPElections {
     contractOwner = msg.sender;
   }
 
+  function getContractOwner() external view returns (address) {
+    return contractOwner;
+  }
+  
   function withdrawAllFunds() external {
     require(msg.sender == contractOwner);
     msg.sender.transfer(address(this).balance);

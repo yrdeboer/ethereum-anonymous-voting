@@ -52,7 +52,7 @@ window.App = {
 	    allAccounts = accounts;
 	    userAccount = accounts[0];
 
-	    console.log("set user account to:");
+	    console.log("set user account to:" + userAccount + ":");
 	    console.log(userAccount);
 
 	    await window.App.route();
@@ -81,6 +81,7 @@ window.App = {
 	    await window.App.displayUserElectionCount(userElectionKeys);
 	    let userElections = await window.App.getUserElections(userElectionKeys);
 	    window.App.displayUserElections(userElections);
+	    window.App.displayTotalDonated();
 	}
 	
     },
@@ -182,6 +183,54 @@ window.App = {
 	    tr.appendChild(tdStatus);
 
 	    electionsTable.appendChild(tr);
+	}
+    },
+
+    displayTotalDonated: async function () {
+
+	console.log("displayTotalDonated");
+	console.log(window.web3);
+	let donatedWei = new bigInt(
+	    await window.web3.eth.getBalance(
+		zkpElectionsContract.address,
+		async function (error, balance) {
+
+		    if (error) {
+			console.error(error);
+		    } else {
+
+			console.log(window.web3);
+			
+			const el = document.getElementById("totalEtherDonated");
+			el.innerHTML = parseFloat(balance.dividedBy(1e18).toNumber().toFixed(8));
+
+			await window.App.displayWithdrawButton();
+		    }
+		}));
+    },
+
+    displayWithdrawButton: async function () {
+
+	// Check if current userAccount owns contract
+	let contractOwner = await zkpElections.getContractOwner.call(
+	    {"from": userAccount});
+	if (userAccount.toLowerCase() == contractOwner.toLowerCase()) {
+	
+	    let btn = document.createElement("button");
+	    btn.setAttribute("class", "btn btn-default");
+	    btn.setAttribute("id", "withdrawButton");
+	    btn.setAttribute("onclick", "App.withdrawFunds();return false;");
+	    btn.innerHTML = "Withdraw";
+	    document.getElementById("panelWithdrawButton").appendChild(btn);
+	}
+    },
+
+    withdrawFunds: async function () {
+	try {
+	    await zkpElections.withdrawAllFunds({"from": userAccount});
+	} catch (error) {
+	    console.error(error);
+	    alert("Error withdrawing funds");
 	}
     },
     
