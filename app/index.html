@@ -19,7 +19,8 @@
 
 		<div class="panel panel-info">
 		    <div class="panel-heading">
-			<div id="userElectionCount"></div>
+			<div></div>
+			<h3>You have <span id="userElectionCount">no</span> elections</h3>
 		    </div>
 		    
 		    <div class="panel-body">
@@ -28,6 +29,7 @@
 				<th scope="col">Name</th>
 				<th scope="col">Candidate count</th>
 				<th scope="col">Votes</th>
+				<th scope="col">Status</th>
 			    </thead>
 			    <tbody id="electionsTable">
 			    </tbody>
@@ -79,6 +81,18 @@
 				    class="form-control"
 				    id="inputVoterCount"
 				    placeholder="12">
+			    </div>
+
+			    <div class="form-group">
+				<label for="inputDonationEther">
+				    Voluntary donation (in ETH, to me)
+				</label>
+				<input
+				    type="number"
+				    name="inputDonationEther"
+				    class="form-control"
+				    id="inputDonationEther"
+				    placeholder="0.01">
 			    </div>
 
 			    

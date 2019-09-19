@@ -86,6 +86,10 @@ window.App = {
     },
 
     getUserElectionKeys: async function () {
+
+	// The contract returns an array of length equal to
+	// the number of elections. When a value is 1, it means
+	// that election is owned by this user. Starts counting at 1!
 	
 	let keys = await zkpElections.getElectionKeysForOwner.call({"from": userAccount});
 	console.log(keys);
@@ -95,7 +99,8 @@ window.App = {
 		userElectionKeys.push(i+1);
 	    }
 	}
-	return userElectionKeys.reverse();
+
+	return userElectionKeys;
     },
 
     displayUserElectionCount: async function (userElectionKeys) {
@@ -103,19 +108,22 @@ window.App = {
 	console.log(userElectionKeys);
 	const element = document.getElementById("userElectionCount");
 	if (userElectionKeys.length == 0) {
-	    element.innerHTML = "<h3>You have no elections</h3>";
+	    element.innerHTML = "no";
 	} else {
-	    element.innerHTML = "<h3>You have " + userElectionKeys.length + " elections</h3>";
+	    element.innerHTML = userElectionKeys.length;
 	}
     },
 
     getUserElections: async function (userElectionKeys) {
 
 	// Keys are reversed already
+	console.log("getUserElections, keys:");
+	console.log(userElectionKeys);
 	var userElections = {};
 	for (var i = 0; i < userElectionKeys.length; i ++) {
 	    try {
 		let election = await zkpElections.getElection(userElectionKeys[i]);
+		console.log("electionKey=" + userElectionKeys[i] + " election:");
 		console.log(election);
 		userElections[userElectionKeys[i]] = election;
 	    } catch (error) {
@@ -137,7 +145,7 @@ window.App = {
 	    const candidates = userElections[key][1];
 	    const candidateVoteCounts = userElections[key][2];
 	    const voterCount = userElections[key][3].toNumber();
-	    const electionClosed = userElections[key][4];
+	    const isClosed = userElections[key][4];
 
 	    // Create clickable row
 	    var tr = document.createElement("tr");
@@ -164,7 +172,15 @@ window.App = {
 	    var txt = "" + votesCast + "/" + candidateVoteCounts.length;
 	    tdVotes.innerHTML = txt;
 	    tr.appendChild(tdVotes);
-	    
+
+	    var tdStatus = document.createElement("td");
+	    if (isClosed) {
+		tdStatus.innerHTML = "Closed";
+	    } else {
+		tdStatus.innerHTML = "Accepting votes";
+	    }
+	    tr.appendChild(tdStatus);
+
 	    electionsTable.appendChild(tr);
 	}
     },
@@ -176,6 +192,11 @@ window.App = {
 	let canNamesLst = canNames.split(",");
 	let voterCount = document.getElementById("inputVoterCount").value;
 
+	let donationEther = document.getElementById("inputDonationEther").value;
+	if (donationEther == "") {
+	    donationEther = 0;
+	}
+	
 	if (canNamesLst.length == 1 && canNamesLst[0] == "") {
 
 	    alert("Not enough candidates");
@@ -191,6 +212,7 @@ window.App = {
 		electionName,
 		canNamesLst,
 		voterAddresses,
+		donationEther
 	    );
 	    await window.App.createVoterListElements(voterPrivateKeys);
 	}
@@ -245,7 +267,7 @@ window.App = {
     },
     
     
-    stageElection: async function (electionNameStr, canNamesLst, voterAddresses) {
+    stageElection: async function (electionNameStr, canNamesLst, voterAddresses, donationEther) {
 
 	console.log("stageElection, canNamesLst:");
 	console.log(canNamesLst);
@@ -255,11 +277,13 @@ window.App = {
 	    candidatesHexStrList.push(nameStrToHexStr(canNamesLst[i]));
 	}
 
+	let donationWei = new bigInt(donationEther * 1e18).toString(10);
+
 	stagedElection = {};
 	stagedElection["nameHexStr"] = nameStrToHexStr(electionNameStr);
 	stagedElection["candidateHexStrList"] = candidatesHexStrList;
 	stagedElection["voterAddresses"] = voterAddresses;
-	stagedElection["kwargs"] = {"from": userAccount};
+	stagedElection["kwargs"] = {"from": userAccount, "value": donationWei};
 
 	console.log("stageElection, election:");
 	console.log(stagedElection);
@@ -276,16 +300,26 @@ window.App = {
 	if (stagedElection == null) {
 	    alert("No election staged for submission");
 	} else {
-	
+
 	    var receipt = await zkpElections.addElection(
 		stagedElection["nameHexStr"],
 		stagedElection["candidateHexStrList"],
 		stagedElection["voterAddresses"],
 		stagedElection["kwargs"]);
 
+	    let donation = stagedElection["kwargs"]["value"];
+	    if (donation > 0) {
+		alert("Thank you for your donation!");
+	    }
+
 	    stagedElection = null;
 	    
 	    console.log(receipt);
+
+	    const oldButton = document.getElementById("submitElection");
+	    if (oldButton !== null) {
+		oldButton.remove();
+	    }
 
 	    await window.App.initIndex();
 	}
@@ -310,12 +344,15 @@ window.App = {
 
 	let voterStatus = await window.App.getVoterStatus(electionKey);
 
+	let isClosed = election[4];
+	
 	await window.App.displayElectionName(election[0].toString(16));
-	await window.App.displayElectionStatus(election[4]);
+	await window.App.displayElectionStatus(isClosed);
 	await window.App.displayVoteStatus(election);
-	await window.App.displayVoterStatus(election[4], voterStatus);
+	await window.App.displayVoterStatus(voterStatus);
 	await window.App.displayCandidates(election, electionKey, voterStatus);
-	await window.App.addCloseElectionButton(electionKey);
+	await window.App.addCloseElectionButton(isClosed, electionKey);
+	await window.App.addElectionResult(election);
     },
 
     getVoterStatus: async function (electionKey) {
@@ -365,17 +402,15 @@ window.App = {
 	votesNode.innerHTML = "" + votesCast + "/" + election[3].toNumber();
     },
 
-    displayVoterStatus: async function (isClosed, voterStatus) {
+    displayVoterStatus: async function (voterStatus) {
 
 	const statusNode = document.getElementById("voterStatus");
-	if (isClosed) {
-	    statusNode.innerHTML = "Closed";
-	} else if (voterStatus == 0) {
+	if (voterStatus == 0) {
 	    statusNode.innerHTML = "Not voting";
 	} else if (voterStatus == 1) {
-	    statusNode.innerHTML = "Voting";
+	    statusNode.innerHTML = "Not voted";
 	} else if (voterStatus == 2) {
-	    statusNode.innerHTML = "Vote cast";
+	    statusNode.innerHTML = "Voted";
 	};
     },
 
@@ -384,7 +419,7 @@ window.App = {
 	var candidates = election[1];
 	var voteCounts = election[2];
 	var isClosed = election[4];
-
+	
 	const canTable = document.getElementById("candidatesTable");
 	canTable.innerHTML = "";
 
@@ -424,9 +459,141 @@ window.App = {
 	
     },
 
-    addCloseElectionButton: async function (electionKey) {
+    getLeaderKey: async function (election) {
+
+	var leaderKey = 0;
+	var leaderVoteCount = 0;
+	for (var i = 0; i <election[1].length; i ++) {
+	    var thisVoteCount = bigInt(election[2][i]).toNumber();
+	    if (thisVoteCount > leaderVoteCount) {
+		leaderKey = i + 1;
+		leaderVoteCount = thisVoteCount;
+	    }
+	}
+	return leaderKey;
+    },
+    
+    addCloseElectionButton: async function (isClosed, electionKey) {
 	// Get user election keys and check if this one is among them.
-	// If so, add the button 
+	// If so, add the button
+
+	if (!isClosed) {
+	    
+	    var electionKeys = await window.App.getUserElectionKeys();
+
+	    console.log("electionKeys:");
+	    
+	    
+	    for (var i = 0; i < electionKeys.length; i ++) {
+
+		console.log("  " + bigInt(electionKeys[i]).toNumber());
+		
+		if (bigInt(electionKeys[i]).isEqualTo(bigInt(electionKey))) {
+		    var panelNode = document.getElementById("panelForCloseButton");
+		    panelNode.innerHTML = "";
+		    
+		    var btnNode = document.createElement("button");
+		    btnNode.setAttribute("class", "btn btn-default");
+		    btnNode.setAttribute("id", "closeElectionButton");
+		    var clck = "App.closeElection(" + electionKey + ");return false;";
+		    btnNode.setAttribute("onclick", clck);
+		    btnNode.innerHTML = "Close election";
+		    panelNode.appendChild(btnNode);
+		}
+	    }
+	}
+    },
+
+
+    addElectionResult: async function (election) {
+
+	// Fetch total votes cast and highest vote count for a candidate
+	var maxVoteCount = 0;
+	var totVotesCast = 0;
+	var candidates = election[1];
+	var voteCounts = election[2];
+	for (var i = 0; i < candidates.length; i ++) {
+	    totVotesCast += voteCounts[i].toNumber();
+	    if (voteCounts[i] > maxVoteCount) {
+		maxVoteCount = voteCounts[i];
+	    }
+	}
+
+	console.log("totVotesCast=" + totVotesCast);
+	console.log("maxVoteCount=" + maxVoteCount);
+	
+	var result = "<h3>";
+	if (totVotesCast == 0) {
+	    result = "No votes cast";
+	} else {
+
+	    // Check how many candidates have the max vote count
+	    var leaders = [];
+	    for (var j = 0; j < candidates.length; j ++)
+	    {
+		if (voteCounts[j].toNumber() == maxVoteCount) {
+		    leaders.push(hexStrToNameStr(candidates[j].toString(16)));
+		}
+	    }
+
+	    console.log("leaders=" + leaders);
+	    
+	    // If there are more or only 1 leader ...
+	    var isClosed = election[4];
+	    if (leaders.length > 1) {
+
+		if (isClosed) {
+		    result += "Tie between ";
+		}
+		
+		for (var i =  0; i < leaders.length; i ++ ) {
+		    if (i == leaders.length - 1) {
+			result += " and ";
+		    }
+		    result += leaders[i];
+		}
+
+		if (!isClosed) {
+		    result += " are leading";
+		}
+		
+	    } else {
+		if (isClosed) {
+		    result += leaders[0] + " won";
+		} else {
+		    result += leaders[0] + " is leading";
+		}
+	    }
+	}
+
+	result += "</h3>";
+
+	var node = document.getElementById("panelBodyForResult");
+	node.innerHTML = result;
+	
+    },
+    
+    
+    closeElection: async function (electionKey) {
+
+	try {
+	    
+	    await zkpElections.closeElectionPrematurely(
+		electionKey.toString(16),
+		{"from": userAccount});
+
+	    document.getElementById("closeElectionButton").remove();
+	    window.App.initElection();
+	    
+	} catch (error) {
+	    
+	    console.error(error);
+	    var txt = "There was an error trying to close the election. ";
+	    txt += "Election not closed.";
+	    alert(txt);
+	    
+	}
+	
     },
     
     castVote: async function (electionKey, candidateKey) {
@@ -442,7 +609,7 @@ window.App = {
 	    candidateKey.toString(16),
 	    {"from": userAccount});
 	console.log(receipt);
-
+	
 	window.App.initElection();
     },
     

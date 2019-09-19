@@ -177,7 +177,7 @@ contract("Test ZKP elections election management", function(accounts) {
 
     it("should not close by non owner", async function () {
 	
-	await truffleAssert.reverts(zkpElections.closeElection(
+	await truffleAssert.reverts(zkpElections.closeElectionPrematurely(
 	    1,
 	    {"from": someUserAccount}));
     });
@@ -185,7 +185,7 @@ contract("Test ZKP elections election management", function(accounts) {
     it("should close by owner and not accept more votes", async function () {
 
 	let electionKey = new bigInt('1');
-	var receipt = await zkpElections.closeElection(
+	var receipt = await zkpElections.closeElectionPrematurely(
 	    electionKey,
 	    {"from": ownerAccount});
 
@@ -224,4 +224,55 @@ contract("Test ZKP elections election management", function(accounts) {
 	
     });
 
+
+contract("Last vote closes election", function(accounts) {
+
+    const electionName1 = '0x456c656374';  // "Election 1"
+    const ownerAccount = accounts[0];
+
+    const candidateAccount1 = accounts[1];
+    const candidateName1 = 0x43616e2031;  // "Can 1"
+    const candidateAccount2 = accounts[2];
+    const candidateName2 = 0x43616e2032;  // "Can 2"
+
+    const voterAccount1 = accounts[3];
+    const voterName1 = 0x566f7465722031;  // "Voter 1"
+    const voterAccount2 = accounts[4];
+    const voterName2 = 0x566f7465722032;  // "Voter 2"
+    
+    it("should close election on last vote", async function () {
+
+	// Get contract
+	var zkpElections = await zkpElectionsArtifact.new({"from": ownerAccount});
+
+	// Add election
+	var receipt = await zkpElections.addElection(
+	    electionName1,
+	    [candidateName1, candidateName2],
+	    [voterAccount1, voterAccount2],
+	    {"from": ownerAccount});
+
+	// Cast vote to first candidate
+	receipt = await zkpElections.castVote(
+	    '1',
+	    '1',
+	    {"from": voterAccount1});
+
+	// Cast another vote to first candidate
+	receipt = await zkpElections.castVote(
+	    '1',
+	    '1',
+	    {"from": voterAccount2});
+
+	var election = await zkpElections.getElection.call(
+	    '1',
+	    {"from": someUserAccount});
+
+	var isClosed = election[4];
+	assert(isClosed);
+	
+    });
+    
+});
+    
 });

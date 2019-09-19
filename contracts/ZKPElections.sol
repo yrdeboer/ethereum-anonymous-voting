@@ -2,6 +2,8 @@ pragma solidity ^0.5.11;
 
 contract ZKPElections {
 
+  address public contractOwner;
+
   struct Candidate {
     uint name;
     uint voteCount;
@@ -26,10 +28,19 @@ contract ZKPElections {
   event ElectionAdded(uint name, uint _electionKey);
   event ElectionClosed(uint _electionKey);
   event VoteCast(uint _electionKey, uint _candidateKey);
+
+  constructor () public {
+    contractOwner = msg.sender;
+  }
+
+  function withdrawAllFunds() external {
+    require(msg.sender == contractOwner);
+    msg.sender.transfer(address(this).balance);
+  }
   
   function addElection(uint _name,
 		       uint [] calldata _candidates,
-		       address [] calldata _voterAddresses) external {
+		       address [] calldata _voterAddresses) external payable {
         
     require(_candidates.length >= 1);
     require(_voterAddresses.length >= 1);
@@ -93,7 +104,8 @@ contract ZKPElections {
     require(_electionKey <= electionCount);
     return elections[_electionKey].voterToStatus[msg.sender];
   }
-  
+
+
   function castVote(uint _electionKey, uint _candidateKey) external {
     require(_electionKey <= electionCount);
         
@@ -106,9 +118,21 @@ contract ZKPElections {
     election.voterToStatus[msg.sender] = 2;
 
     emit VoteCast(_electionKey, _candidateKey);
+
+    // Last vote closes election
+    uint votesCast;
+    for (uint i = 1; i <= election.candidateCount; i ++ ) {
+      votesCast += election.candidates[i].voteCount;
+    }
+    if (votesCast == election.voterCount) {
+      election.isClosed = true;
+      emit ElectionClosed(_electionKey);
+    }
   }
     
-  function closeElection(uint _electionKey) external {
+  function closeElectionPrematurely(uint _electionKey) external {
+
+    // Premature election closing only by owner
     require (_electionKey <= electionCount);
     Election storage election = elections[_electionKey];
     require (election.owner == msg.sender);
