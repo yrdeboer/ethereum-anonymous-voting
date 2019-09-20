@@ -44992,10 +44992,17 @@ window.App = {
 	
 	window.web3.eth.getAccounts(async function(error, accounts) {
 
+	    console.log("accounts:");
+	    console.log(accounts);
+	    
 	    if (error != null || accounts.length == 0) {
+
+		console.error(error);
+		
 		var msg = "There was an error fetching your accounts, please";
 		msg += "connect a wallet (MetaMask, Mist, etc)";
 		alert(msg);
+
 		return;
 	    }
 
@@ -45684,6 +45691,8 @@ window.addEventListener('load', async function(args) {
 	console.warn("No web3 provider found (MetaMask, Mist, etc.)");
     } else {
 	window.web3 = new __WEBPACK_IMPORTED_MODULE_3_web3___default.a(window.web3.currentProvider);
+	console.log("Set web3 to:");
+	console.log(window.web3);
     }
     await window.App.start();
 });
