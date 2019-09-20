@@ -83,7 +83,6 @@ window.App = {
 	    window.App.displayUserElections(userElections);
 	    window.App.displayTotalDonated();
 	}
-	
     },
 
     getUserElectionKeys: async function () {
@@ -263,12 +262,12 @@ window.App = {
 		voterAddresses,
 		donationEther
 	    );
-	    await window.App.createVoterListElements(voterPrivateKeys);
+	    await window.App.createVoterListElements(voterAddresses, voterPrivateKeys);
 	}
     },
 
 
-    createVoterListElements: async function (voterKeys) {
+    createVoterListElements: async function (addrs, keys) {
 
 	const oldList = document.getElementById("privateKeyListElement");
 	if (oldList !== null) {
@@ -282,19 +281,84 @@ window.App = {
 	ul.setAttribute("id", "privateKeyListElement");
 	panelBody.appendChild(ul);
 
-	console.log("voterKeys: " + voterKeys);
+	console.log("voterKeys: " + keys);
 
-	for (var i = 0; i < voterKeys.length; i ++ ){
+	let voterUrl = await window.App.getVoterURL();
+	for (var i = 0; i < keys.length; i ++ ){
 
 	    var li = document.createElement("li");
 	    li.setAttribute("class", "list-group-item");
-	    li.appendChild(document.createTextNode(voterKeys[i]));
+	    li.appendChild(window.App.createVoterInstructionNode(
+		voterUrl,
+		i,
+		keys.length,
+		addrs[i], keys[i]));
 	    ul.appendChild(li);
 	}
 
 	await window.App.createSubmissionButton();
     },
 
+
+    getVoterURL: async function () {
+	let electionKey = await zkpElections.getNextElectionKey.call({"from": userAccount});
+	var url = "http://" + window.location.host + "/election.html?electionKey=" + electionKey;
+	return url;
+    },
+    
+
+    createVoterInstructionNode: function (voterURL, voterId, voterCnt, addr, key) {
+
+	var cardDiv = document.createElement("div");
+	cardDiv.setAttribute("class", "card mx-auto");
+	cardDiv.setAttribute("style", "background-color: GhostWhite;");
+
+
+	var hdrDiv = document.createElement("div");
+	hdrDiv.setAttribute("class", "card-header");
+	var hdrTxt = "Instruction card (" +  parseInt(voterId+1) + "/" + voterCnt + ")";
+	hdrDiv.innerHTML = "<h3>" + hdrTxt + "</h3>";
+	cardDiv.appendChild(hdrDiv);	
+
+	var ol = document.createElement("ol");
+	// ol.setAttribute("class", "list-group");
+
+	var liMM = document.createElement("li");
+	// liMM.setAttribute("class", "list-group-item");
+	liMM.innerHTML = "Install and/or open MetaMask, Mist, etc. in your browser";
+	ol.appendChild(liMM);
+	
+	var liPK = document.createElement("li");
+	// liPK.setAttribute("class", "list-group-item");
+	liPK.innerHTML = "<p>Add your voting account using this private key:</p><p>" + key + "</p>";
+	liPK.innerHTML += "<p>Tip: Scan it with your phone</p>";
+	ol.appendChild(liPK);
+
+	var liDep = document.createElement("li");
+	// liDep.setAttribute("class", "list-group-item");
+	liDep.innerHTML = "Deposit at least 0.005 ETH on it";
+	ol.appendChild(liDep);
+	
+	var liNav = document.createElement("li");
+	// liNav.setAttribute("class", "list-group-item");
+	liNav.innerHTML = "Navigate to: " + voterURL;
+	ol.appendChild(liNav);
+	
+	var liCast = document.createElement("li");
+	// liCast.setAttribute("class", "list-group-item");
+	liCast.innerHTML = "Cast your vote";
+	ol.appendChild(liCast);
+
+	cardDiv.appendChild(ol);
+
+	var ftrDiv = document.createElement("div");
+	ftrDiv.setAttribute("class", "card-footer");
+	ftrDiv.innerHTML = "<h3>Thank you and good luck!</h4>";
+	cardDiv.appendChild(ftrDiv);
+
+	return cardDiv;
+    },
+    
     
     createSubmissionButton: async function () {
 	console.log("createSubmissionButton");

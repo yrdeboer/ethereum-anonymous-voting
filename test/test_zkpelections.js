@@ -27,7 +27,15 @@ contract("Test ZKP empty calls", function(accounts) {
 	var keys = await zkpElections.getElectionKeysForOwner.call({"from": someUserAccount});
 	assert.equal(keys.length, 0);
 
+    });
+
+    it("should return next election key", async function () {
+	
+	var nextKey = new bigInt(
+	    await zkpElections.getNextElectionKey.call({"from": someUserAccount}));
+	assert(nextKey.isEqualTo(bigInt('1')));
     });    
+    
 });
 
 contract("Test ZKP elections election management", function(accounts) {
@@ -86,8 +94,15 @@ contract("Test ZKP elections election management", function(accounts) {
 	let eCan = new bigInt(receipt.logs[0].args._candidateKey);
 	assert(eCan.isEqualTo(candidateKey));
     });
-    
 
+    it("should return next election key", async function () {
+	
+	var nextKey = new bigInt(
+	    await zkpElections.getNextElectionKey.call({"from": someUserAccount}));
+	assert(nextKey.isEqualTo(bigInt('2')));
+
+    });    
+    
     it("should return proper voter status of non voter", async function () {
 
 	let status = new bigInt(await zkpElections.getVoterStatus.call(

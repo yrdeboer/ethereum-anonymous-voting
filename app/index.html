@@ -37,6 +37,18 @@
 		    </div>
 
 		</div>
+
+		<div class="panel panel-info">
+		    <div class="panel-heading">
+			<div></div>
+			<h3>Donations</h3>
+		    </div>
+		    
+		    <div class="panel-body" id="panelWithdrawButton">
+			<p><b>Total donated:</b> <span id="totalEtherDonated"> 0 </span> ETH </p>
+		    </div>
+		</div>
+		
 	    </div> <!-- col-lg-6 -->
 
 	    <div class="col-lg-6">
@@ -106,31 +118,32 @@
 			</form>
 			
 
-		    </div> <!-- panel -->
+		    </div> 
+		</div> <!-- panel -->
 
-		    <!-- Here we will show the instructions to distribute the keys -->
-		    <div class="panel-body" id="panelBodyForKeyList">
-			<h3>Instructions:</h3>
-			<p>Distribute the following keys among the voters.</p>
-			<p>Make sure no one (including you) knows who has which key, 
-			    except for their own.</p>
-			<p>Keys will be deleted in the next step, print them first!</p>
-		    </div>
-		    
-		</div>
-
+		<!-- Here we will show the instructions to distribute the keys -->
 		<div class="panel panel-info">
+
 		    <div class="panel-heading">
-			<div></div>
-			<h3>Donations</h3>
+			<h3>Instructions:</h3>
 		    </div>
 		    
-		    <div class="panel-body" id="panelWithdrawButton">
-			<p><b>Total donated:</b> <span id="totalEtherDonated"> 0 </span> ETH </p>
+		    <div class="panel-body" id="panelBodyForKeyList">
+
+			<p>Distribute the following cards among the voters.</p>
+			<p>Print them and cut them out and distribute them (have a ceremony).</p>
+			<p>Make sure no one (including you) knows who has which card, 
+			    except for their own.</p>
+			<p class="text-danger"><b>
+			    The cards will be deleted in the next step, print them first!
+			</b></p>
 		    </div>
-		</div>
+
+		</div> <!-- panel-info for voter cards -->
 		
-	    </div> <!-- container -->
-	    
+	    </div> <!-- col-lg-6 -->
+
+	</div> <!-- container -->
+	
     </body>
 </html>

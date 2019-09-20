@@ -69,7 +69,11 @@ contract ZKPElections {
 
     emit ElectionAdded(_name, electionCount);
   }
-    
+
+  function getNextElectionKey() external view returns (uint) {
+    return electionCount + 1;
+  }
+  
   function getElection(uint _electionKey)
     external view returns (uint, uint [] memory, uint [] memory, uint, bool) {
         
