@@ -44999,8 +44999,10 @@ window.App = {
 
 		console.error(error);
 		
-		var msg = "There was an error fetching your accounts, please";
-		msg += "connect a wallet (MetaMask, Mist, etc)";
+		var msg = "There was an error fetching your accounts, please ";
+		msg += "connect a wallet (MetaMask, Mist, etc). ";
+		msg += "Also make sure to add this domain: \"" + window.location.hostname;
+		msg += "\" to your wallet's connections.";
 		alert(msg);
 
 		return;
