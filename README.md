@@ -11,4 +11,4 @@ It works as follows:
 
 There is also the possibility to make a small donation to me :)
 
-It was great fun creating this dapp and I'm off to greener pastures, cheers! 
+It was great fun creating this dapp and I'm off to even greener pastures, cheers! 
