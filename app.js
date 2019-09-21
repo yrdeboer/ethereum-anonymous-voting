@@ -45022,11 +45022,17 @@ window.App = {
 
     route: async function () {
 
+	
 	console.log("route, pathname=" + window.location.pathname);
 
 	var pathName = window.location.pathname;
 	var slug = pathName.substr(pathName.lastIndexOf("/"));
 
+	console.log(window.location);
+	console.log(pathName);
+	console.log(pathName.lastIndexOf("/"));
+	conosle.log(slug);
+	
 	if (slug == "/" || slug == "/index.html") {
 	    window.App.initIndex();
 	} else {
