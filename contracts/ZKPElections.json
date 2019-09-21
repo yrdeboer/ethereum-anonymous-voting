@@ -1225,7 +1225,7 @@
                               "name": "this",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 3272,
+                              "referencedDeclaration": 3264,
                               "src": "924:4:2",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_contract$_ZKPElections_$3235",
@@ -8242,7 +8242,7 @@
                               "name": "this",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 3272,
+                              "referencedDeclaration": 3264,
                               "src": "924:4:2",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_contract$_ZKPElections_$3235",
@@ -14410,642 +14410,11 @@
         }
       },
       "links": {},
-      "address": "0x1EeF71970C88c69a263E3eF7D6951Bd4B61882C0",
-      "transactionHash": "0x1e17c9a938cfa52a91332cc075f3fde33dcbdb0c3602367888992b13b02d4db7"
-    },
-    "15": {
-      "events": {
-        "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionAdded",
-          "type": "event",
-          "signature": "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2"
-        },
-        "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionClosed",
-          "type": "event",
-          "signature": "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83"
-        },
-        "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_candidateKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "VoteCast",
-          "type": "event",
-          "signature": "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b"
-        }
-      },
-      "links": {},
-      "address": "0x3b78Cbe8C1BD71D8af62Fe42aad1FEdaE57e3C4E",
-      "transactionHash": "0xa6339b3d23f9e07d401296b4062ba75b65b8933341433c5be1dbf969b14b11ba"
-    },
-    "1568363650903": {
-      "events": {
-        "0x4e0017fb3de251e0d35bf2bc876a9f37d27b811919e139600d2ba2725ae6e04f": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionCount",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_prizeMoneyWei",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionAdded",
-          "type": "event",
-          "signature": "0x4e0017fb3de251e0d35bf2bc876a9f37d27b811919e139600d2ba2725ae6e04f"
-        },
-        "0xe83b2a43e7e82d975c8a0a6d2f045153c869e111136a34d1889ab7b598e396a3": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_candidateCount",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "string",
-              "name": "_candidateName",
-              "type": "string"
-            }
-          ],
-          "name": "CandidateAdded",
-          "type": "event",
-          "signature": "0xe83b2a43e7e82d975c8a0a6d2f045153c869e111136a34d1889ab7b598e396a3"
-        },
-        "0x85ccb673c0f28c4b8ba00fe954146d91c099b133e47a392bd0f6b547490d365f": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "string",
-              "name": "_candidateName",
-              "type": "string"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "_voterAddr",
-              "type": "address"
-            }
-          ],
-          "name": "VoteCast",
-          "type": "event",
-          "signature": "0x85ccb673c0f28c4b8ba00fe954146d91c099b133e47a392bd0f6b547490d365f"
-        }
-      },
-      "links": {},
-      "address": "0x41bbd78ca2eB88DCD08de39112128c052f879409",
-      "transactionHash": "0x3dbe5a2396129fe83b2e2848531adf46f60989dac422750d436e6f2eb5c05510"
-    },
-    "1568631879784": {
-      "events": {
-        "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionClosed",
-          "type": "event",
-          "signature": "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83"
-        }
-      },
-      "links": {},
-      "address": "0x9cEBd4bF783de928EC7e90B86a36BA8c14259283",
-      "transactionHash": "0xac912e7d18d3c7fbfcbb2ad0fdb3bba2b503d1053367faf15c6abe0f149fccf0"
-    },
-    "1568715993318": {
-      "events": {
-        "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionAdded",
-          "type": "event",
-          "signature": "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2"
-        },
-        "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionClosed",
-          "type": "event",
-          "signature": "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83"
-        },
-        "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_candidateKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "VoteCast",
-          "type": "event",
-          "signature": "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b"
-        }
-      },
-      "links": {},
-      "address": "0x9cEBd4bF783de928EC7e90B86a36BA8c14259283",
-      "transactionHash": "0x7590743038b2b90ad4430cd5b51a1e108d70e1d9c899dbf2affdaf1b1cb6d0d5"
-    },
-    "1568717877547": {
-      "events": {
-        "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionAdded",
-          "type": "event",
-          "signature": "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2"
-        },
-        "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionClosed",
-          "type": "event",
-          "signature": "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83"
-        },
-        "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_candidateKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "VoteCast",
-          "type": "event",
-          "signature": "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b"
-        }
-      },
-      "links": {},
-      "address": "0x9cEBd4bF783de928EC7e90B86a36BA8c14259283",
-      "transactionHash": "0x7590743038b2b90ad4430cd5b51a1e108d70e1d9c899dbf2affdaf1b1cb6d0d5"
-    },
-    "1568719317130": {
-      "events": {
-        "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionAdded",
-          "type": "event",
-          "signature": "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2"
-        },
-        "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionClosed",
-          "type": "event",
-          "signature": "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83"
-        },
-        "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_candidateKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "VoteCast",
-          "type": "event",
-          "signature": "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b"
-        }
-      },
-      "links": {},
-      "address": "0x6Ba91799D6cC2530A6E25cd4Cb18166F8644fE0C",
-      "transactionHash": "0xbc99b77689d71430e9358828cba9486e413e4af055c2b7052c154efa87d6dc76"
-    },
-    "1568725323652": {
-      "events": {
-        "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionAdded",
-          "type": "event",
-          "signature": "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2"
-        },
-        "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionClosed",
-          "type": "event",
-          "signature": "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83"
-        },
-        "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_candidateKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "VoteCast",
-          "type": "event",
-          "signature": "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b"
-        }
-      },
-      "links": {},
-      "address": "0x9cEBd4bF783de928EC7e90B86a36BA8c14259283",
-      "transactionHash": "0x1aa195bf465ba1f1d0b370a0268b6de3ad0e40255ce6b0d3b0a4221894bab209"
-    },
-    "1568725882306": {
-      "events": {
-        "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionAdded",
-          "type": "event",
-          "signature": "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2"
-        },
-        "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionClosed",
-          "type": "event",
-          "signature": "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83"
-        },
-        "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_candidateKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "VoteCast",
-          "type": "event",
-          "signature": "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b"
-        }
-      },
-      "links": {},
-      "address": "0x9cEBd4bF783de928EC7e90B86a36BA8c14259283",
-      "transactionHash": "0x5a216a0cb829dde9556d94645bb6df7db4f9f1811ac84fc187dfc5d02c083662"
-    },
-    "1568726549406": {
-      "events": {
-        "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionAdded",
-          "type": "event",
-          "signature": "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2"
-        },
-        "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionClosed",
-          "type": "event",
-          "signature": "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83"
-        },
-        "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_candidateKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "VoteCast",
-          "type": "event",
-          "signature": "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b"
-        }
-      },
-      "links": {},
-      "address": "0x4eC47434165D307483c782470b56aB9c534998D3",
-      "transactionHash": "0x79850bf7fd23c162bca9b76df7ab6e314c0b225ee073943649d7a2d8934fe95d"
-    },
-    "1568728542386": {
-      "events": {
-        "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionAdded",
-          "type": "event",
-          "signature": "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2"
-        },
-        "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionClosed",
-          "type": "event",
-          "signature": "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83"
-        },
-        "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_candidateKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "VoteCast",
-          "type": "event",
-          "signature": "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b"
-        }
-      },
-      "links": {},
-      "address": "0x9cEBd4bF783de928EC7e90B86a36BA8c14259283",
-      "transactionHash": "0x2291ccafb31c2e359096421b20daf95ab8146e4b5e290e1ee94bca6807c68d56"
-    },
-    "1568748058692": {
-      "events": {
-        "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionAdded",
-          "type": "event",
-          "signature": "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2"
-        },
-        "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionClosed",
-          "type": "event",
-          "signature": "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83"
-        },
-        "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_candidateKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "VoteCast",
-          "type": "event",
-          "signature": "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b"
-        }
-      },
-      "links": {},
-      "address": "0xD93bc54441d5dc75A83F8c0f4898af1cDA138C15",
-      "transactionHash": "0x766ebf285a122bb030fe369de7ef1f05ecf1b9e069cf8436ab8c266a15d7b48a"
+      "address": "0x4Cd14A5ceE3de06C5a9A65a5DdBf6A95A841f79F",
+      "transactionHash": "0x54692834c9943c6f2dbee5e6156d4482ad6bc1504eccec239adb3ad162f0595b"
     },
     "1568800884677": {
       "events": {
-        "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionAdded",
-          "type": "event",
-          "signature": "0x1bf15a77976c7cfe0328ab6cf270def21d86b57877ccbbb36de31b545d40dea2"
-        },
-        "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "ElectionClosed",
-          "type": "event",
-          "signature": "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83"
-        },
-        "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_electionKey",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_candidateKey",
-              "type": "uint256"
-            }
-          ],
-          "name": "VoteCast",
-          "type": "event",
-          "signature": "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b"
-        },
         "0x4e0017fb3de251e0d35bf2bc876a9f37d27b811919e139600d2ba2725ae6e04f": {
           "anonymous": false,
           "inputs": [
@@ -15065,15 +14434,49 @@
           "name": "ElectionAdded",
           "type": "event",
           "signature": "0x4e0017fb3de251e0d35bf2bc876a9f37d27b811919e139600d2ba2725ae6e04f"
+        },
+        "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "_electionKey",
+              "type": "uint256"
+            }
+          ],
+          "name": "ElectionClosed",
+          "type": "event",
+          "signature": "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83"
+        },
+        "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "_electionKey",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "_candidateKey",
+              "type": "uint256"
+            }
+          ],
+          "name": "VoteCast",
+          "type": "event",
+          "signature": "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b"
         }
       },
       "links": {},
-      "address": "0x5751e7774260d6D19f76E942FB6CcD3caC83E45F",
-      "transactionHash": "0x9f4e5c813c0f03a7cf27af444f66cc952ffc21f28597ed3eeeb5e0a619cd2f3e"
+      "address": "0xb3C090235665a23EE832E60A3aBEc3889591Adb5",
+      "transactionHash": "0xa2cc6e875193e3958cd73270f403f1ad6ab2ccaca069065f7f4453aa673437b5"
     }
   },
   "schemaVersion": "3.0.13",
-  "updatedAt": "2019-09-20T14:32:02.657Z",
+  "updatedAt": "2019-09-21T14:07:48.687Z",
   "devdoc": {
     "methods": {}
   },
