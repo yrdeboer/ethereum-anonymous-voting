@@ -45022,17 +45022,9 @@ window.App = {
 
     route: async function () {
 
-	
-	console.log("route, pathname=" + window.location.pathname);
-
 	var pathName = window.location.pathname;
 	var slug = pathName.substr(pathName.lastIndexOf("/"));
 
-	console.log(window.location);
-	console.log(pathName);
-	console.log(pathName.lastIndexOf("/"));
-	conosle.log(slug);
-	
 	if (slug == "/" || slug == "/index.html") {
 	    window.App.initIndex();
 	} else {
@@ -45118,9 +45110,10 @@ window.App = {
 
 	    // Create clickable row
 	    var tr = document.createElement("tr");
-	    var href = 'window.location.href="/election.html?electionKey=' + key + '"';
-	    console.log("href=" + href);
-	    tr.setAttribute("onclick", href);
+
+	    var newHref = window.location.href + "/election.html?electionKey=" + key;
+	    console.log("Setting new href to: " + newHref);
+	    tr.setAttribute("onclick", newHref);
 
 	    // Add name column to this row
 	    var tdName = document.createElement("td");
