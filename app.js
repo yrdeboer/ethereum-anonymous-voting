@@ -45113,7 +45113,7 @@ window.App = {
 
 	    var newHref = window.location.href + "/election.html?electionKey=" + key;
 	    console.log("Setting new href to: " + newHref);
-	    tr.setAttribute("onclick", newHref);
+	    tr.setAttribute("onclick", "window.location.href='" + newHref + "'");
 
 	    // Add name column to this row
 	    var tdName = document.createElement("td");
