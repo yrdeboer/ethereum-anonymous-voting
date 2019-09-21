@@ -14352,6 +14352,67 @@
     "version": "0.5.11+commit.c082d0b4.Emscripten.clang"
   },
   "networks": {
+    "1": {
+      "events": {
+        "0x4e0017fb3de251e0d35bf2bc876a9f37d27b811919e139600d2ba2725ae6e04f": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "name",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "_electionKey",
+              "type": "uint256"
+            }
+          ],
+          "name": "ElectionAdded",
+          "type": "event",
+          "signature": "0x4e0017fb3de251e0d35bf2bc876a9f37d27b811919e139600d2ba2725ae6e04f"
+        },
+        "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "_electionKey",
+              "type": "uint256"
+            }
+          ],
+          "name": "ElectionClosed",
+          "type": "event",
+          "signature": "0x393c4b8e62f1195313cf17dcf00793c668ddfc35881cd8015559c074f6d61e83"
+        },
+        "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "_electionKey",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "_candidateKey",
+              "type": "uint256"
+            }
+          ],
+          "name": "VoteCast",
+          "type": "event",
+          "signature": "0xc31875ef3ed5138b71a0c1da7e494bc4d2ba4f567084ea481ec9c45f3a93948b"
+        }
+      },
+      "links": {},
+      "address": "0x69EF96b819F37B0Fbe42AeD860712bD8e4A8308e",
+      "transactionHash": "0x3d2b8e08c97e4bb7f48a75420ed36b8ec375d3890e7fa0ce56d0d647148683fe"
+    },
     "4": {
       "events": {
         "0x4e0017fb3de251e0d35bf2bc876a9f37d27b811919e139600d2ba2725ae6e04f": {
@@ -14476,7 +14537,7 @@
     }
   },
   "schemaVersion": "3.0.13",
-  "updatedAt": "2019-09-21T14:07:48.687Z",
+  "updatedAt": "2019-09-21T20:27:04.757Z",
   "devdoc": {
     "methods": {}
   },
