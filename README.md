@@ -1,9 +1,9 @@
 # Anoymous voting on the ethereum blockchain
 
 ## The journey
-Developing this decentralised application (dapp) was fun and extremly fruitul in my journey to become a blockchain developer.
+Developing this decentralised application (dapp) was fun and extremly fruitful in my journey to become a blockchain developer.
 
-Sure, it won't make me rich and you soon enough see that I'm no front-end developer/designer.
+Sure, it won't make me rich and you will soon enough see that I'm no front-end developer/designer.
 
 Nevertheless, it is full-fledged end-to-end working dapp on the ethereum blockchain and I'm proud of it :)
 
