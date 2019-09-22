@@ -28,6 +28,8 @@ There is also the possibility to make a voluntary donation to me :)
 ## The site
 Here: [https://yrdeboer.github.io/ethereum-anonymous-voting/](https://yrdeboer.github.io/ethereum-anonymous-voting/)
 
+(The dapp is deployed on both the Rinkeby test net as the ethereum main net.)
+
 
 
 
