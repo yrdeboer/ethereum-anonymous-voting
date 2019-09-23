@@ -18,12 +18,34 @@
  *
  */
 
+const BIP39 = require('bip39');
+var HDKey = require('ethereumjs-wallet/hdkey');
 const HDWalletProvider = require('truffle-hdwallet-provider');
-
-
+const readline = require('readline-sync');
 const fs = require('fs');
-const mnemonic = fs.readFileSync("mnemonic.txt").toString().trim();
-const infuraEndpoint = fs.readFileSync("infuraEndpoint.txt").toString().trim();
+
+
+function mnemonicToAddress0 (mnemonic) {
+
+    if (!BIP39.validateMnemonic(mnemonic)) {
+	throw("Invalid mnemonic: " + mnemonic);
+    }
+
+    const seed = BIP39.mnemonicToSeedSync(mnemonic);
+    const hdKey = HDKey.fromMasterSeed(seed);
+
+    var wallet0 = hdKey.derivePath("m/44'/60'/0'/0/0").getWallet();
+    var addr = wallet0.getAddress();
+    return "0x" + addr.toString("hex");
+}
+
+
+const mnemonic = readline.question("mnemonic: ");
+
+const fromAddr = mnemonicToAddress0(mnemonic);
+
+const infuraEndpointRinkeby = fs.readFileSync("infuraEndpointRinkeby.txt").toString().trim();
+const infuraEndpointMainNet = fs.readFileSync("infuraEndpointMainNet.txt").toString().trim();
 
 
 module.exports = {
@@ -66,14 +88,27 @@ module.exports = {
 	rinkeby: {
 	    provider: () => new HDWalletProvider(
 		mnemonic,
-		infuraEndpoint),
+		infuraEndpointRinkeby),
 	    network_id: 4,       // Rinkeby
-	    gas: 7000000,       //
+	    gas: 6000000,       //
 	    gasPrice: 50000000000,
 	    confirmations: 2,    // # of confs to wait between deployments. (default: 0)
 	    timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
 	    skipDryRun: true,    // Skip dry run before migrations? (default: false for public nets )
-	    from: "0x64c05A365c053e3628e22a1BDF705A4D6A480edA"
+	    from: fromAddr
+	},
+
+	mainnet: {
+	    provider: () => new HDWalletProvider(
+		mnemonic,
+		infuraEndpointMainNet),
+	    network_id: 1,       // Main 
+	    gas: 2000000,       //
+	    gasPrice: 20000000000,
+	    confirmations: 2,    // # of confs to wait between deployments. (default: 0)
+	    timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
+	    skipDryRun: true,    // Skip dry run before migrations? (default: false for public nets )
+	    from: fromAddr
 	},
 
     },
