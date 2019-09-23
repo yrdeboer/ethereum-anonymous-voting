@@ -4,11 +4,11 @@ import 'bootstrap-loader';
 // Import the page's CSS. Webpack will know what to do with it.
 import "../stylesheets/app.css";
 
-// Import libraries we need.
 import { default as Web3} from 'web3';
+
 import { default as contract } from 'truffle-contract';
 
-var bigInt = require("bignumber.js");
+import { default as bigInt } from "bignumber.js";
 
 import zkpElectionsArtifact from '../../build/contracts/ZKPElections.json';
 var zkpElectionsContract = contract(zkpElectionsArtifact);
@@ -39,34 +39,29 @@ window.App = {
 	    zkpElectionsContract.setProvider(window.web3.currentProvider);
 	    zkpElections = await zkpElectionsContract.deployed();
 	    console.log("Election contract at " + zkpElectionsContract.address);
-	    
+
 	} catch (error) {
 	    alert("Could not find contract, are you connected to the right network?");
 	}
-	
-	window.web3.eth.getAccounts(async function(error, accounts) {
 
-	    if (error != null || accounts.length == 0) {
+	try {
+	    var accounts = await window.web3.eth.getAccounts();
+	} catch (error) {
+	    console.error(error);
+	    var msg = "There was an error fetching your accounts, please ";
+	    msg += "connect a wallet (MetaMask, Mist, etc). ";
+	    msg += "Also make sure to add this domain: \"" + window.location.hostname;
+	    msg += "\" to your wallet's allowed connections.";
+	    alert(msg);
+	    return;
+	}
 
-		console.error(error);
-		
-		var msg = "There was an error fetching your accounts, please ";
-		msg += "connect a wallet (MetaMask, Mist, etc). ";
-		msg += "Also make sure to add this domain: \"" + window.location.hostname;
-		msg += "\" to your wallet's allowed connections.";
-		alert(msg);
+	allAccounts = accounts;
+	userAccount = accounts[0];
+	console.log("Using account " + userAccount);
 
-		return;
-	    }
-
-	    allAccounts = accounts;
-	    userAccount = accounts[0];
-	    console.log("Using account " + userAccount);
-
-	    await window.App.route();
-	    
-	});
-
+	await window.App.subscribeToEvents();
+	await window.App.route();
     },
 
     route: async function () {
@@ -75,9 +70,9 @@ window.App = {
 	var slug = pathName.substr(pathName.lastIndexOf("/"));
 
 	if (slug == "/" || slug == "/index.html") {
-	    window.App.initIndex();
+	    await window.App.initIndex();
 	} else {
-	    window.App.initElection();
+	    await window.App.initElection();
 	}
 	
     },
@@ -237,19 +232,10 @@ window.App = {
 
     displayTotalDonated: async function () {
 
-	let donatedWei = new bigInt(
-	    await window.web3.eth.getBalance(
-		zkpElectionsContract.address,
-		async function (error, balance) {
-
-		    if (error) {
-			console.error(error);
-		    } else {
-			const el = document.getElementById("totalEtherDonated");
-			el.innerHTML = parseFloat(balance.dividedBy(1e18).toNumber().toFixed(8));
-			await window.App.displayWithdrawButton();
-		    }
-		}));
+	var donatedWei = new bigInt(await window.web3.eth.getBalance(zkpElectionsContract.address));
+	const el = document.getElementById("totalEtherDonated");
+	el.innerHTML = parseFloat(donatedWei.dividedBy(1e18).toNumber().toFixed(8));
+	await window.App.displayWithdrawButton();
     },
 
     displayWithdrawButton: async function () {
@@ -258,10 +244,15 @@ window.App = {
 	let contractOwner = await zkpElections.getContractOwner.call(
 	    {"from": userAccount});
 
-	console.log("Contract owner is " + contractOwner);
+	console.log("Contract owned by " + contractOwner);
 	
 	if (userAccount.toLowerCase() == contractOwner.toLowerCase()) {
-	
+
+	    var oldBtn = document.getElementById("withdrawButton");
+	    if (oldBtn) {
+		oldBtn.remove();
+	    }
+
 	    let btn = document.createElement("button");
 	    btn.setAttribute("class", "btn btn-default");
 	    btn.setAttribute("id", "withdrawButton");
@@ -449,33 +440,24 @@ window.App = {
 	    alert("No election staged for submission");
 	} else {
 
-	    var receipt = await zkpElections.addElection(
-		stagedElection["nameHexStr"],
-		stagedElection["candidateHexStrList"],
-		stagedElection["voterAddresses"],
-		stagedElection["kwargs"]);
-
 	    let donation = stagedElection["kwargs"]["value"];
 	    if (donation > 0) {
 		alert("Thank you for your donation!");
 	    }
 
+	    var receipt = await zkpElections.addElection(
+		stagedElection["nameHexStr"],
+		stagedElection["candidateHexStrList"],
+		stagedElection["voterAddresses"],
+		stagedElection["kwargs"]);
+	    
 	    stagedElection = null;
 	    
 	    const oldButton = document.getElementById("submitElection");
 	    if (oldButton !== null) {
 		oldButton.remove();
 	    }
-
-	    await window.App.initIndex();
 	}
-    },
-    
-    setStatus: async function(statusMsg) {
-
-	const el = document.getElementById("status");
-	el.innerHTML = statusMsg;
-	
     },
     
     initElection: async function () {
@@ -701,11 +683,10 @@ window.App = {
 	try {
 	    
 	    await zkpElections.closeElectionPrematurely(
-		electionKey.toString(16),
+		electionKey,
 		{"from": userAccount});
 
 	    document.getElementById("closeElectionButton").remove();
-	    window.App.initElection();
 	    
 	} catch (error) {
 	    
@@ -719,13 +700,11 @@ window.App = {
     },
     
     castVote: async function (electionKey, candidateKey) {
-	
+
 	var receipt = await zkpElections.castVote(
-	    electionKey.toString(16),
-	    candidateKey.toString(16),
+	    electionKey,
+	    candidateKey,
 	    {"from": userAccount});
-	
-	window.App.initElection();
     },
 
     addButtonForNewElection: function () {
@@ -744,15 +723,46 @@ window.App = {
 	btnNode.innerHTML = "Let me create a new election";
 	panelNode.appendChild(btnNode);
     },
+
+    subscribeToEvents: async function () {
+
+	await window.web3.eth.subscribe(
+	    'logs',
+	    {"address": zkpElections.address},
+	    window.App.processEvents);
+	
+    },
     
+    processEvents: async function (error, events) {
+
+	if (error) {
+	    console.error("Error in processing events:");
+	    console.error(error);
+	}
+	await window.App.route();
+    },
+
 };
 
 window.addEventListener('load', async function(args) {
 
-    if (typeof window.web3 == 'undefined') {
-	console.warn("No web3 provider found (MetaMask, Mist, etc.)");
-    } else {
+    if (window.ethereum) {
+	
+	window.web3 = new Web3(window.ethereum);
+	
+	try {
+	    await window.ethereum.enable();
+	} catch (error) {
+	    console.error(error);
+	}
+    } else if (window.web3) {
+
 	window.web3 = new Web3(window.web3.currentProvider);
+    } else {
+	var msg = "Could not connect to a wallet like MetaMask, Mist, etc.";
+	msg += "This dapp will not work without it.";
+	alert(msg);
     }
+    
     await window.App.start();
 });
