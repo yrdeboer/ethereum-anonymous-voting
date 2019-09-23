@@ -20,7 +20,16 @@
 		<div class="panel panel-info">
 		    <div class="panel-heading">
 			<div></div>
-			<h3>You have <span id="userElectionCount">no</span> elections</h3>
+			<h3 id="userElectionCount">Unknown election count</h3>
+
+			<button
+			  type="button"
+			  class="btn btn-default"
+			  id="buttonToggleUserAll"
+			  onclick="App.toggleUserAll();return false;">
+			  Show only your elections
+			</button>
+			
 		    </div>
 		    
 		    <div class="panel-body">

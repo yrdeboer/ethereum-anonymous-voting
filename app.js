@@ -44978,13 +44978,17 @@ var userAccount;
 var stagedElection = null;
 
 window.App = {
+
+    // This toggles whether to show all elections or only those 
+    // created by the current user account
+    showAllElections: true,
     
     start: async function() {
 
 	try {
 	    zkpElectionsContract.setProvider(window.web3.currentProvider);
 	    zkpElections = await zkpElectionsContract.deployed();
-	    console.log("Election contract at: " + zkpElectionsContract.address);
+	    console.log("Election contract at " + zkpElectionsContract.address);
 	    
 	} catch (error) {
 	    alert("Could not find contract, are you connected to the right network?");
@@ -44992,9 +44996,6 @@ window.App = {
 	
 	window.web3.eth.getAccounts(async function(error, accounts) {
 
-	    console.log("accounts:");
-	    console.log(accounts);
-	    
 	    if (error != null || accounts.length == 0) {
 
 		console.error(error);
@@ -45010,9 +45011,7 @@ window.App = {
 
 	    allAccounts = accounts;
 	    userAccount = accounts[0];
-
-	    console.log("set user account to:" + userAccount + ":");
-	    console.log(userAccount);
+	    console.log("Using account " + userAccount);
 
 	    await window.App.route();
 	    
@@ -45035,9 +45034,8 @@ window.App = {
     
     initIndex: async function () {
 
-	console.log("initIndex");
-
 	if (zkpElections !== null) {
+
 	    let userElectionKeys = await window.App.getUserElectionKeys();
 	    await window.App.displayUserElectionCount(userElectionKeys);
 	    let userElections = await window.App.getUserElections(userElectionKeys);
@@ -45046,6 +45044,22 @@ window.App = {
 	}
     },
 
+    toggleUserAll: function () {
+
+	var curVal = window.App.showAllElections;
+	window.App.showAllElections = ! curVal;
+
+	var newButtonTxt;
+	if (curVal) {
+	    newButtonTxt = "Show all elections";
+	} else {
+	    newButtonTxt = "Show only your elections";
+	}
+	document.getElementById("buttonToggleUserAll").innerHTML = newButtonTxt;
+
+	window.App.initIndex();
+    },
+    
     getUserElectionKeys: async function () {
 
 	// The contract returns an array of length equal to
@@ -45053,10 +45067,9 @@ window.App = {
 	// that election is owned by this user. Starts counting at 1!
 	
 	let keys = await zkpElections.getElectionKeysForOwner.call({"from": userAccount});
-	console.log(keys);
 	let userElectionKeys = [];
 	for (var i = 0; i < keys.length; i ++) {
-	    if (keys[i].toNumber() == 1) {
+	    if (keys[i].toNumber() == 1 || window.App.showAllElections) {
 		userElectionKeys.push(i+1);
 	    }
 	}
@@ -45066,32 +45079,42 @@ window.App = {
 
     displayUserElectionCount: async function (userElectionKeys) {
 
-	console.log(userElectionKeys);
 	const element = document.getElementById("userElectionCount");
+
+	var electionCountTxt;
 	if (userElectionKeys.length == 0) {
-	    element.innerHTML = "no";
+
+	    if (window.App.showAllElections) {
+		electionCountTxt = "There are no elections yet";
+	    } else {
+		electionCountTxt = "You have no elections yet";
+	    }
+	    
 	} else {
-	    element.innerHTML = userElectionKeys.length;
+	    if (window.App.showAllElections) {
+		electionCountTxt = "There are " + userElectionKeys.length;
+		electionCountTxt += " elections";
+	    } else {
+		electionCountTxt = "You have " + userElectionKeys.length;
+		electionCountTxt += " elections";
+	    }
 	}
+	element.innerHTML = electionCountTxt;
     },
 
     getUserElections: async function (userElectionKeys) {
 
 	// Keys are reversed already
-	console.log("getUserElections, keys:");
-	console.log(userElectionKeys);
 	var userElections = {};
 	for (var i = 0; i < userElectionKeys.length; i ++) {
 	    try {
 		let election = await zkpElections.getElection(userElectionKeys[i]);
-		console.log("electionKey=" + userElectionKeys[i] + " election:");
-		console.log(election);
 		userElections[userElectionKeys[i]] = election;
 	    } catch (error) {
 		console.error("Unable to get election by key (" + userElectionKeys[i] + ")");
 	    }
 	}
-	console.log(userElections);
+
 	return userElections;
     },
 
@@ -45099,15 +45122,12 @@ window.App = {
 
 	// Fetch href without any GET parameters
 	var pathName = window.location.origin + window.location.pathname;
-	console.log("getHrefFor, pathName=" + pathName);
 	
 	// Strip off last file name (which is index.html or election.html)
 	var base = pathName.substr(0, pathName.lastIndexOf("/"));
-	console.log("getHrefFor, base=" + base);
 	
 	// Construct new href without any GET parameters
 	var href = base + "/" + pageName;
-	console.log("getHrefFor, href=" + href);
 	
 	return href;
     },
@@ -45130,9 +45150,7 @@ window.App = {
 	    var tr = document.createElement("tr");
 
 	    var newHref = window.App.getHrefFor("election.html") + "?electionKey=" + key;
-	    console.log("Setting new href to: " + newHref);
 	    var clck = "window.location.href='" + newHref + "'";
-	    console.log("clck=" + clck);
 	    tr.setAttribute("onclick", clck);
 
 	    // Add name column to this row
@@ -45169,8 +45187,6 @@ window.App = {
 
     displayTotalDonated: async function () {
 
-	console.log("displayTotalDonated");
-	console.log(window.web3);
 	let donatedWei = new bigInt(
 	    await window.web3.eth.getBalance(
 		zkpElectionsContract.address,
@@ -45179,12 +45195,8 @@ window.App = {
 		    if (error) {
 			console.error(error);
 		    } else {
-
-			console.log(window.web3);
-			
 			const el = document.getElementById("totalEtherDonated");
 			el.innerHTML = parseFloat(balance.dividedBy(1e18).toNumber().toFixed(8));
-
 			await window.App.displayWithdrawButton();
 		    }
 		}));
@@ -45195,6 +45207,9 @@ window.App = {
 	// Check if current userAccount owns contract
 	let contractOwner = await zkpElections.getContractOwner.call(
 	    {"from": userAccount});
+
+	console.log("Contract owner is " + contractOwner);
+	
 	if (userAccount.toLowerCase() == contractOwner.toLowerCase()) {
 	
 	    let btn = document.createElement("button");
@@ -45262,8 +45277,6 @@ window.App = {
 	ul.setAttribute("class", "list-group");
 	ul.setAttribute("id", "privateKeyListElement");
 	panelBody.appendChild(ul);
-
-	console.log("voterKeys: " + keys);
 
 	let voterUrl = await window.App.getVoterURL();
 	for (var i = 0; i < keys.length; i ++ ){
@@ -45343,7 +45356,6 @@ window.App = {
     
     
     createSubmissionButton: async function () {
-	console.log("createSubmissionButton");
 
 	const oldButton = document.getElementById("submitElection");
 	if (oldButton !== null) {
@@ -45363,9 +45375,6 @@ window.App = {
     
     
     stageElection: async function (electionNameStr, canNamesLst, voterAddresses, donationEther) {
-
-	console.log("stageElection, canNamesLst:");
-	console.log(canNamesLst);
 	
 	var candidatesHexStrList = [];
 	for (var i = 0; i < canNamesLst.length; i ++) {
@@ -45379,16 +45388,10 @@ window.App = {
 	stagedElection["candidateHexStrList"] = candidatesHexStrList;
 	stagedElection["voterAddresses"] = voterAddresses;
 	stagedElection["kwargs"] = {"from": userAccount, "value": donationWei};
-
-	console.log("stageElection, election:");
-	console.log(stagedElection);
     },
 	
 
     submitStagedElection: async function (electionNameStr, canNamesLst, voterCount) {
-
-	console.log("submitStagedElection");
-	console.log(stagedElection);
 
 	document.getElementById("privateKeyListElement").remove();
 	
@@ -45409,8 +45412,6 @@ window.App = {
 
 	    stagedElection = null;
 	    
-	    console.log(receipt);
-
 	    const oldButton = document.getElementById("submitElection");
 	    if (oldButton !== null) {
 		oldButton.remove();
@@ -45429,16 +45430,9 @@ window.App = {
     
     initElection: async function () {
 	
-	console.log("initElection");
-
 	var electionKey = Object(__WEBPACK_IMPORTED_MODULE_6__javascripts_utils_js__["a" /* getURLParam */])("electionKey", window.location.search);
-	console.log(electionKey);
-
 	let election = await zkpElections.getElection(electionKey);
-	console.log(election);
-
 	let voterStatus = await window.App.getVoterStatus(electionKey);
-
 	let isClosed = election[4];
 	
 	await window.App.displayElectionName(election[0].toString(16));
@@ -45460,8 +45454,6 @@ window.App = {
 		electionKey,
 		{"from": userAccount})).toNumber();
 
-	    console.log("got voter status from block: " + voterStatus);
-	    
 	} catch(error) {
 	    console.error("Error getting voter status");
 	}
@@ -45519,7 +45511,6 @@ window.App = {
 	const canTable = document.getElementById("candidatesTable");
 	canTable.innerHTML = "";
 
-	console.log("displayCandidates");
 	for (var i = 0; i < candidates.length; i ++) {
 
 	    var candidateKey = i + 1;
@@ -45570,32 +45561,22 @@ window.App = {
     },
     
     addCloseElectionButton: async function (isClosed, electionKey) {
-	// Get user election keys and check if this one is among them.
-	// If so, add the button
 
 	if (!isClosed) {
-	    
-	    var electionKeys = await window.App.getUserElectionKeys();
 
-	    console.log("electionKeys:");
-	    
-	    
-	    for (var i = 0; i < electionKeys.length; i ++) {
-
-		console.log("  " + bigInt(electionKeys[i]).toNumber());
+	    let keys = await zkpElections.getElectionKeysForOwner.call({"from": userAccount});
+	    if (keys[electionKey - 1] == 1) {
 		
-		if (bigInt(electionKeys[i]).isEqualTo(bigInt(electionKey))) {
-		    var panelNode = document.getElementById("panelForCloseButton");
-		    panelNode.innerHTML = "";
-		    
-		    var btnNode = document.createElement("button");
-		    btnNode.setAttribute("class", "btn btn-default");
-		    btnNode.setAttribute("id", "closeElectionButton");
-		    var clck = "App.closeElection(" + electionKey + ");return false;";
-		    btnNode.setAttribute("onclick", clck);
-		    btnNode.innerHTML = "Close election";
-		    panelNode.appendChild(btnNode);
-		}
+		var panelNode = document.getElementById("panelForCloseButton");
+		panelNode.innerHTML = "";
+		
+		var btnNode = document.createElement("button");
+		btnNode.setAttribute("class", "btn btn-default");
+		btnNode.setAttribute("id", "closeElectionButton");
+		var clck = "App.closeElection(" + electionKey + ");return false;";
+		btnNode.setAttribute("onclick", clck);
+		btnNode.innerHTML = "Close election";
+		panelNode.appendChild(btnNode);
 	    }
 	}
     },
@@ -45615,9 +45596,6 @@ window.App = {
 	    }
 	}
 
-	console.log("totVotesCast=" + totVotesCast);
-	console.log("maxVoteCount=" + maxVoteCount);
-	
 	var result = "<h3>";
 	if (totVotesCast == 0) {
 	    result = "No votes cast";
@@ -45632,8 +45610,6 @@ window.App = {
 		}
 	    }
 
-	    console.log("leaders=" + leaders);
-	    
 	    // If there are more or only 1 leader ...
 	    var isClosed = election[4];
 	    if (leaders.length > 1) {
@@ -45693,18 +45669,11 @@ window.App = {
     },
     
     castVote: async function (electionKey, candidateKey) {
-
-	console.log("electionKey=" + electionKey + " " + electionKey.toString(16));
-	console.log("candidateKey=" + candidateKey + " " + candidateKey.toString(16));
-	
-	console.log("0x" + electionKey.toString(16));
-	console.log("0x" + candidateKey.toString(16));
 	
 	var receipt = await zkpElections.castVote(
 	    electionKey.toString(16),
 	    candidateKey.toString(16),
 	    {"from": userAccount});
-	console.log(receipt);
 	
 	window.App.initElection();
     },
@@ -45718,9 +45687,7 @@ window.App = {
 	btnNode.setAttribute("class", "btn btn-default");
 	
 	var newHref = window.App.getHrefFor("");
-	console.log("Setting new href to: " + newHref);
 	var clck = "window.location.href='" + newHref + "'";
-	console.log("clck=" + clck);
 	btnNode.setAttribute("onclick", clck);
 
 	btnNode.setAttribute("onclick", clck);
@@ -45732,14 +45699,10 @@ window.App = {
 
 window.addEventListener('load', async function(args) {
 
-    console.log(window.location);
-    
     if (typeof window.web3 == 'undefined') {
 	console.warn("No web3 provider found (MetaMask, Mist, etc.)");
     } else {
 	window.web3 = new __WEBPACK_IMPORTED_MODULE_3_web3___default.a(window.web3.currentProvider);
-	console.log("Set web3 to:");
-	console.log(window.web3);
     }
     await window.App.start();
 });
