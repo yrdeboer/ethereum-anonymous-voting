@@ -79,6 +79,8 @@ window.App = {
     
     initIndex: async function () {
 
+	await window.App.mentionOtherNetAvailability();
+	
 	if (zkpElections !== null) {
 
 	    let userElectionKeys = await window.App.getUserElectionKeys();
@@ -89,6 +91,25 @@ window.App = {
 	}
     },
 
+    mentionOtherNetAvailability: async function () {
+
+	var netId = await window.web3.eth.net.getId();
+
+	var mentionStr = "";
+	if (netId != 1 && netId != 4) {
+	    mentionStr += "Available on the main net and Rinkeby test net";
+	} else {
+	    if (netId == 1) {
+		mentionStr += "Also available on the Rinkeby testnet";
+	    } else if (netId == 4) {
+		mentionStr += "Also available on the main net";
+	    }
+	}
+    
+	var node = document.getElementById("otherNetMention");
+	node.innerHTML = mentionStr;
+    },
+    
     toggleUserAll: function () {
 
 	var curVal = window.App.showAllElections;
@@ -726,11 +747,12 @@ window.App = {
 
     subscribeToEvents: async function () {
 
-	await window.web3.eth.subscribe(
-	    'logs',
-	    {"address": zkpElections.address},
-	    window.App.processEvents);
-	
+	if (zkpElections !== null) {
+	    await window.web3.eth.subscribe(
+		'logs',
+		{"address": zkpElections.address},
+		window.App.processEvents);
+	}	
     },
     
     processEvents: async function (error, events) {
